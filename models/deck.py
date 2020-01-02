@@ -1,6 +1,8 @@
-from py2neo.ogm import GraphObject, Property
+from py2neo.ogm import GraphObject, Property, RelatedFrom
 
 class Deck(GraphObject):
-    __primarykey__ = "name"
+    __primarykey__ = "hash"
 
-    name = Property()
+    hash = Property()
+
+    used_in = RelatedFrom("Card")
