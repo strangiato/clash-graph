@@ -38,5 +38,5 @@ dependencies:
     - urllib3==1.24.3
     - wcwidth==0.1.8
     - wrapt==1.11.2
-prefix: /Users/trevorroyer/miniconda3/envs/clash-graph
+prefix: ~/miniconda3/envs/clash-graph
 
