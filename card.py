@@ -4,3 +4,4 @@ class Card(GraphObject):
     __primarykey__ = "name"
 
     name = Property()
+    description = Property()
