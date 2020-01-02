@@ -5,3 +5,6 @@ class Card(GraphObject):
 
     name = Property()
     description = Property()
+    elixer = Property()
+    card_type = Property()
+    rarity = Property()
