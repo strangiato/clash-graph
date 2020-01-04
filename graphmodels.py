@@ -1,13 +1,14 @@
 from py2neo.ogm import GraphObject, Property, RelatedTo, RelatedFrom
 
 class Card(GraphObject):
-    __primarykey__ = "name"
+    __primarykey__ = "key"
 
+    key = Property()
     name = Property()
-    description = Property()
     elixer = Property()
     card_type = Property()
     rarity = Property()
+    description = Property()
 
 class Player(GraphObject):
     __primarykey__ = "tag"
