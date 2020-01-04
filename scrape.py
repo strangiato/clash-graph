@@ -1,22 +1,6 @@
 from py2neo import Graph
 
-from py2neo.ogm import GraphObject, Property, RelatedTo, RelatedFrom
-
-class Clan(GraphObject):
-    __primarykey__ = "tag"
-
-    tag = Property()
-    name = Property()
-
-    member = RelatedFrom("Player", "Member_In")
-
-class Player(GraphObject):
-    __primarykey__ = "tag"
-
-    tag = Property()
-    name = Property()
-
-    member_of = RelatedTo("Clan")
+from graphmodels import Clan, Player
 
 clash = Graph(host = "localhost", auth=("neo4j", "test123"))
 
