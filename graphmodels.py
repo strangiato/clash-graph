@@ -5,7 +5,7 @@ class Card(GraphObject):
 
     key = Property()
     name = Property()
-    elixer = Property()
+    elixir = Property()
     card_type = Property()
     rarity = Property()
     description = Property()
@@ -15,6 +15,11 @@ class Player(GraphObject):
 
     tag = Property()
     name = Property()
+    clan_role = Property()
+    trophies = Property()
+    donations = Property()
+    donationsReceived = Property()
+    donationsDelta = Property()
 
     member_of = RelatedTo("Clan")
 
@@ -23,6 +28,13 @@ class Clan(GraphObject):
 
     tag = Property()
     name = Property()
+    description = Property()
+    clan_type = Property()
+    score = Property()
+    warTrophies = Property()
+    memberCount = Property()
+    requiredScore = Property()
+    donations = Property()
 
     member = RelatedFrom("Player")
 
