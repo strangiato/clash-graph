@@ -36,7 +36,7 @@ class Clan(GraphObject):
     requiredScore = Property()
     donations = Property()
 
-    member = RelatedFrom("Player")
+    member_of = RelatedFrom("Player")
 
 class Deck(GraphObject):
     __primarykey__ = "hash"
