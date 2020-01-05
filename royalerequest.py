@@ -2,13 +2,18 @@ import os
 import requests
 import json
 
-api_key = os.getenv('CLASH_API')
+def getBaseURL():
+    return "https://api.royaleapi.com"
 
-base_url = "https://api.royaleapi.com"
+def getHeaders():
 
-headers = {
-    'auth': api_key
-    }
+    api_key = os.getenv('CLASH_API')
+
+    headers = {
+        'auth': api_key
+        }
+
+    return headers
 
 def getClan(base_url, headers, tag):
     request_url = '{base_url}/clan/{tag}'.format(base_url = base_url, tag = tag)
@@ -32,6 +37,9 @@ def __getData(url, headers):
 
 if __name__ == "__main__":
 
+    base_url = getBaseURL()
+    headers = getHeaders()
+    
     clan = getClan(base_url, headers, "VV80RJY")
     print(clan["tag"])
 
