@@ -43,7 +43,8 @@ class Deck(GraphObject):
 
     hash = Property()
 
-    used_in = RelatedFrom("Card")
+    contains = RelatedTo("Card")
+    played = RelatedFrom("Player")
 
 class Battle(GraphObject):
     __primarykey__ = "name"
