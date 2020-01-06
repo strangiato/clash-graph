@@ -1,4 +1,5 @@
 from py2neo.ogm import GraphObject, Property, RelatedTo, RelatedFrom
+import hashlib
 
 class Card(GraphObject):
     __primarykey__ = "key"
@@ -45,6 +46,23 @@ class Deck(GraphObject):
 
     contains = RelatedTo("Card")
     played = RelatedFrom("Player")
+
+    def hashDeck(self, deck):
+        """
+        Calculate a hash of
+
+        Keyword arguments:
+        deck -- a list of eight card keys
+        """
+
+        assert len(deck) == 8
+
+        hashSum = 0
+
+        for card in deck:
+            hashSum += int(hashlib.sha1(card.encode('utf-8')).hexdigest(), 16)
+
+        self.hash = hex(hashSum)
 
 class Battle(GraphObject):
     __primarykey__ = "name"
