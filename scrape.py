@@ -60,7 +60,7 @@ def updatePlayer(tag, clan = None):
 def updateDeck(deck, player):
 
     """
-    Calculate a hash of
+    Create a deck object with a unique hash of the cards
 
     Keyword arguments:
     deck -- a list of card json objects
