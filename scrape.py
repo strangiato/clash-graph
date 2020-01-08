@@ -1,6 +1,6 @@
 from py2neo import Graph
 
-from graphmodels import Clan, Player, Card, Deck
+from graphmodels import Clan, Player, Card, Deck, Battle, BattleTeam
 import royalerequest
 
 clash = Graph(host = "localhost", auth=("neo4j", "test123"))
@@ -36,6 +36,7 @@ def updateClan(tag):
 
     for player in clan["members"]:
         updatePlayer(player["tag"], node_clan)
+        updateBattles(player["tag"])
 
 def updatePlayer(tag, clan = None):
     player = royalerequest.getPlayer(base_url, headers, tag)
@@ -43,7 +44,8 @@ def updatePlayer(tag, clan = None):
     node_player = Player()
     node_player.tag = player["tag"]
     node_player.name = player["name"]
-    node_player.clan_role = player["clan"]["role"]
+    if "role" in player["clan"]:
+        node_player.clan_role = player["clan"]["role"]
     node_player.trophies = player["trophies"]
     # node_player.donations = player["clan"]["donations"]
     # node_player.donationsReceived = player["clan"]["donationsReceived"]
@@ -54,7 +56,9 @@ def updatePlayer(tag, clan = None):
 
     clash.push(node_player)
 
-    updateDeck(player["currentDeck"], node_player)
+    return node_player
+
+    #updateDeck(player["currentDeck"], node_player)
 
 def updateDeck(deck, player):
 
@@ -80,12 +84,52 @@ def updateDeck(deck, player):
         node_card = Card.match(clash, card["key"]).first()
         node_deck.contains.add(node_card)
 
-    node_deck.hashDeck(deckKeys)
+    node_deck.setHash(deckKeys)
     node_deck.calculateExilir(deckElixier)
 
     node_deck.played.add(player)
 
     clash.push(node_deck)
+
+    return node_deck
+
+def updateBattles(tag):
+    battles = royalerequest.getBattles(base_url, headers, tag)
+
+    for battle in battles:
+        node_battle = Battle()
+
+        node_battle.utcTime = battle["utcTime"]
+        node_battle.battle_type = battle["type"]
+        node_battle.isLadderTournament = battle["isLadderTournament"]
+        node_battle.battle_mode = battle["mode"]["name"]
+
+        node_battleTeam = updateBattleTeam(battle["team"])
+        node_battle.battled_in.add(node_battleTeam)
+
+        node_battleOpponent = updateBattleTeam(battle["opponent"])
+        node_battle.battled_in.add(node_battleOpponent)
+
+        clash.push(node_battle)
+
+def updateBattleTeam(team):
+    node_battleTeam = BattleTeam()
+    
+    for player in team:
+        node_player = Player.match(clash, player["tag"]).first()
+
+        if not node_player:
+            node_player = updatePlayer(player["tag"])
+
+        node_battleTeam.played_in.add(node_player)
+
+        node_deck = updateDeck(player["deck"], node_player)
+
+        node_battleTeam.used_deck.add(node_deck)
+
+        clash.push(node_battleTeam)
+
+    return node_battleTeam
 
 if __name__ == "__main__":
     base_url = royalerequest.getBaseURL()
