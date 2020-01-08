@@ -1,5 +1,6 @@
 from py2neo.ogm import GraphObject, Property, RelatedTo, RelatedFrom
 import hashlib
+from statistics import mean 
 
 class Card(GraphObject):
     __primarykey__ = "key"
@@ -43,13 +44,14 @@ class Deck(GraphObject):
     __primarykey__ = "hash"
 
     hash = Property()
+    average_elixir = Property()
 
     contains = RelatedTo("Card")
     played = RelatedFrom("Player")
 
     def hashDeck(self, deck):
         """
-        Calculate a hash of
+        Calculate a hash of the keys of the cards in the deck
 
         Keyword arguments:
         deck -- a list of eight card keys
@@ -63,6 +65,21 @@ class Deck(GraphObject):
             hashSum += int(hashlib.sha1(card.encode('utf-8')).hexdigest(), 16)
 
         self.hash = hex(hashSum)
+
+    def calculateExilir(self, deck):
+        """
+        Calculate the average elixir of the deck
+
+        Keyword arguments:
+        deck -- a list of eight card elixirs
+        """
+
+        assert len(deck) == 8
+
+        average = round(mean(deck), 2)
+
+        self.average_elixir = average
+
 
 class Battle(GraphObject):
     __primarykey__ = "name"

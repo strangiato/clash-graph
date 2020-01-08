@@ -71,14 +71,17 @@ def updateDeck(deck, player):
     node_deck = Deck()
 
     deckKeys = []
+    deckElixier = []
     
     for card in deck:
         deckKeys.append(card["key"])
+        deckElixier.append(card["elixir"])
 
         node_card = Card.match(clash, card["key"]).first()
         node_deck.contains.add(node_card)
 
     node_deck.hashDeck(deckKeys)
+    node_deck.calculateExilir(deckElixier)
 
     node_deck.played.add(player)
 
