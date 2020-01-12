@@ -16,18 +16,22 @@ def getHeaders():
     return headers
 
 def getClan(base_url, headers, tag):
+    print("Get Clan: {}".format(tag))
     request_url = '{base_url}/clan/{tag}'.format(base_url = base_url, tag = tag)
     return __getData(request_url, headers)
 
 def getCards(base_url, headers):
+    print("Get Cards")
     request_url = '{base_url}/constant/cards'.format(base_url = base_url)
     return __getData(request_url, headers)
 
 def getPlayer(base_url, headers, tag):
+    print("Get Player: {}".format(tag))
     request_url = '{base_url}/player/{tag}'.format(base_url = base_url, tag = tag)
     return __getData(request_url, headers)
 
 def getBattles(base_url, headers, tag):
+    print("Get Player Battles: {}".format(tag))
     request_url = '{base_url}/player/{tag}/battles'.format(base_url = base_url, tag = tag)
     return __getData(request_url, headers)
 
@@ -39,7 +43,7 @@ if __name__ == "__main__":
 
     base_url = getBaseURL()
     headers = getHeaders()
-    
+    print(headers)
     clan = getClan(base_url, headers, "VV80RJY")
     print(clan["tag"])
 
