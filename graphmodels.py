@@ -20,8 +20,8 @@ class Player(GraphObject):
     clan_role = Property()
     trophies = Property()
     donations = Property()
-    donationsReceived = Property()
-    donationsDelta = Property()
+    donations_rceived = Property()
+    donations_delta = Property()
 
     member_of = RelatedTo("Clan")
 
@@ -33,9 +33,9 @@ class Clan(GraphObject):
     description = Property()
     clan_type = Property()
     score = Property()
-    warTrophies = Property()
-    memberCount = Property()
-    requiredScore = Property()
+    war_trophies = Property()
+    member_count = Property()
+    required_score = Property()
     donations = Property()
 
     member_of = RelatedFrom("Player")
@@ -99,12 +99,12 @@ class Deck(GraphObject):
         except AssertionError as err:
             print("Assert Error for deck: {}".format(deck))
             raise err
-        
+
 class Battle(GraphObject):
 
     battle_type = Property()
-    utcTime = Property()
-    isLadderTournament = Property()
+    utc_time = Property()
+    is_ladder_tournament = Property()
     battle_mode = Property()
 
     battled_in = RelatedFrom("BattleTeam")
@@ -113,7 +113,7 @@ class Battle(GraphObject):
 
 class BattleTeam(GraphObject):
 
-    teamSize = Property()
+    team_size = Property()
 
     used_deck = RelatedTo("Deck")
     played_in = RelatedFrom("Player")
