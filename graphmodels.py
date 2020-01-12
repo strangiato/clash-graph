@@ -60,11 +60,11 @@ class Deck(GraphObject):
         assert len(deck) == 8
 
         hashSum = 0
-
         for card in deck:
-            hashSum += int(hashlib.sha1(card.encode('utf-8')).hexdigest(), 16)
+            cardHash = hashlib.sha1(card.encode('utf-8')).hexdigest()
+            hashSum += int(cardHash, 16)
 
-            return hashSum
+        return hex(hashSum)
 
     def setHash(self, deck):
         
@@ -79,7 +79,7 @@ class Deck(GraphObject):
 
         hashSum = self.getHash(deck)
 
-        self.hash = hex(hashSum)
+        self.hash = hashSum
 
     def calculateExilir(self, deck):
         """
