@@ -49,7 +49,7 @@ class Deck(GraphObject):
     contains = RelatedTo("Card")
     played = RelatedFrom("Player")
 
-    def setHash(self, deck):
+    def deckHash(self, deck):
         
         """
         Set the hash property of the deck using the keys of the cards
@@ -80,9 +80,16 @@ class Deck(GraphObject):
 
         self.deckSizeCheck(deck)
 
-        average = round(mean(deck), 2)
+        elixirTotal = 0
+
+        for card in deck:
+            elixirTotal += card["elixir"]
+
+        average = round(elixirTotal / len(deck), 2)
 
         self.average_elixir = average
+
+        return average
 
     def deckSizeCheck(self, deck):
         try:
