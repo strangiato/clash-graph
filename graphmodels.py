@@ -49,22 +49,6 @@ class Deck(GraphObject):
     contains = RelatedTo("Card")
     played = RelatedFrom("Player")
 
-    def getHash(self, deck):
-        """
-        Calculate a hash of the keys of the cards in the deck
-
-        Keyword arguments:
-        deck -- a list of eight card keys
-        """
-        self.deckSizeCheck(deck)
-
-        hashSum = 0
-        for card in deck:
-            cardHash = hashlib.sha1(card.encode('utf-8')).hexdigest()
-            hashSum += int(cardHash, 16)
-
-        return hex(hashSum)
-
     def setHash(self, deck):
         
         """
@@ -75,9 +59,16 @@ class Deck(GraphObject):
         """
         self.deckSizeCheck(deck)
 
-        hashSum = self.getHash(deck)
+        hashSum = 0
+        for card in deck:
+            cardHash = hashlib.sha1(card["key"].encode('utf-8')).hexdigest()
+            hashSum += int(cardHash, 16)
 
-        self.hash = hashSum
+        hash = hex(hashSum)
+
+        self.hash = hash
+        
+        return hash
 
     def calculateExilir(self, deck):
         """
