@@ -79,3 +79,9 @@ def createDeck(graph, deck):
     graph.merge(deck_node)
 
     return deck_node
+
+def createBattle(graph):
+    return True
+
+def createBattleTeam(graph):
+    return True

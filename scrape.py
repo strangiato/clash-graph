@@ -33,7 +33,7 @@ def updateClan(graph, base_url, headers, tag):
     clanMembers = []
 
     for player in clan["members"]:
-        player_node = createnodes.createPlayer(
+        createnodes.createPlayer(
             graph,
             player["tag"],
             player["name"],
@@ -42,9 +42,34 @@ def updateClan(graph, base_url, headers, tag):
             clan_node
         )
 
-        clanMembers.append(player_node)
+        clanMembers.append(player["tag"])
 
     return clanMembers
+
+def updateBattles(graph, base_url, headers, tag):
+    battles = royalerequest.getBattles(base_url, headers, tag)
+    for battle in battles:
+        createnodes.createBattle(graph)
+
+# def updateBattles_old(tag):
+#     battles = royalerequest.getBattles(base_url, headers, tag)
+
+#     for battle in battles:
+#         node_battle = Battle()
+
+#         node_battle.utcTime = battle["utcTime"]
+#         node_battle.battle_type = battle["type"]
+#         node_battle.isLadderTournament = battle["isLadderTournament"]
+#         node_battle.battle_mode = battle["mode"]["name"]
+
+#         node_battleTeam = updateBattleTeam(battle["team"])
+#         node_battle.battled_in.add(node_battleTeam)
+
+#         node_battleOpponent = updateBattleTeam(battle["opponent"])
+#         node_battle.battled_in.add(node_battleOpponent)
+
+#         clash.push(node_battle)
+
 
 # def updateClan_old(tag):
 #     clan = royalerequest.getClan(base_url, headers, tag)
@@ -164,5 +189,13 @@ if __name__ == "__main__":
     base_url = royalerequest.getBaseURL()
     headers = royalerequest.getHeaders()
 
+    clans = ["VV80RJY"]
+    players = []
+
     updateCards(graph, base_url, headers)
-    updateClan(graph, base_url, headers, "VV80RJY")
+    clan_members = updateClan(graph, base_url, headers, "VV80RJY")
+    players.extend(clan_members)
+
+    for player in players:
+        # udpateBattles(graph, base_url, headers, ...)
+        pass
