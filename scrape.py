@@ -197,5 +197,4 @@ if __name__ == "__main__":
     players.extend(clan_members)
 
     for player in players:
-        # udpateBattles(graph, base_url, headers, ...)
-        pass
+        updateBattles(graph, base_url, headers, player)
