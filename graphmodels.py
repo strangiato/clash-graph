@@ -56,8 +56,7 @@ class Deck(GraphObject):
         Keyword arguments:
         deck -- a list of eight card keys
         """
-
-        assert len(deck) == 8
+        self.deckSizeCheck(deck)
 
         hashSum = 0
         for card in deck:
@@ -74,8 +73,7 @@ class Deck(GraphObject):
         Keyword arguments:
         deck -- a list of eight card keys
         """
-
-        assert len(deck) == 8
+        self.deckSizeCheck(deck)
 
         hashSum = self.getHash(deck)
 
@@ -89,13 +87,19 @@ class Deck(GraphObject):
         deck -- a list of eight card elixirs
         """
 
-        assert len(deck) == 8
+        self.deckSizeCheck(deck)
 
         average = round(mean(deck), 2)
 
         self.average_elixir = average
 
-
+    def deckSizeCheck(self, deck):
+        try:
+            assert len(deck) == 8
+        except AssertionError as err:
+            print("Assert Error for deck: {}".format(deck))
+            raise err
+        
 class Battle(GraphObject):
 
     battle_type = Property()
