@@ -1,139 +1,168 @@
-from py2neo import Graph
-
-from graphmodels import Clan, Player, Card, Deck, Battle, BattleTeam
 import royalerequest
+import createnodes
 
-clash = Graph(host = "localhost", auth=("neo4j", "test123"))
-
-def updateCards():
+def updateCards(graph, base_url, headers):
     cards = royalerequest.getCards(base_url, headers)
 
     for card in cards:
-        node_card = Card()
-        node_card.key = card["key"]
-        node_card.name = card["name"]
-        node_card.elixir = card["elixir"]
-        node_card.card_type = card["type"]
-        node_card.rarity = card["rarity"]
-        node_card.description = card["description"]
-        clash.push(node_card)
+        createnodes.createCard(
+            graph,
+            card["key"],
+            card["name"],
+            card["elixir"],
+            card["type"],
+            card["rarity"],
+            card["description"]
+        )
 
-def updateClan(tag):
+def updateClan(graph, base_url, headers, tag):
     clan = royalerequest.getClan(base_url, headers, tag)
 
-    node_clan = Clan()
-    node_clan.tag = clan["tag"]
-    node_clan.name = clan["name"]
-    node_clan.description = clan["description"]
-    node_clan.clan_type = clan["type"]
-    node_clan.score = clan["score"]
-    node_clan.warTrophies = clan["warTrophies"]
-    node_clan.memberCount = clan["memberCount"]
-    node_clan.requiredScore = clan["requiredScore"]
-    node_clan.donations = clan["donations"]
+    clan_node = createnodes.createClan(
+        graph,
+        clan["tag"],
+        clan["name"],
+        clan["description"],
+        clan["type"],
+        clan["score"],
+        clan["warTrophies"],
+        clan["requiredScore"],
+        clan["donations"]
+    )
 
-    clash.push(node_clan)
+    clanMembers = []
 
     for player in clan["members"]:
-        updatePlayer(player["tag"], node_clan)
-        updateBattles(player["tag"])
+        player_node = createnodes.createPlayer(
+            graph,
+            player["tag"],
+            player["name"],
+            player["trophies"],
+            player["role"],
+            clan_node
+        )
 
-def updatePlayer(tag, clan = None):
-    player = royalerequest.getPlayer(base_url, headers, tag)
+        clanMembers.append(player_node)
 
-    node_player = Player()
-    node_player.tag = player["tag"]
-    node_player.name = player["name"]
-    if "role" in player["clan"]:
-        node_player.clan_role = player["clan"]["role"]
-    node_player.trophies = player["trophies"]
-    # node_player.donations = player["clan"]["donations"]
-    # node_player.donationsReceived = player["clan"]["donationsReceived"]
-    # node_player.donationsDelta = player["clan"]["donationsDelta"]
+    return clanMembers
 
-    if clan != None:
-        node_player.member_of.add(clan)
+# def updateClan_old(tag):
+#     clan = royalerequest.getClan(base_url, headers, tag)
 
-    clash.push(node_player)
+#     node_clan = Clan()
+#     node_clan.tag = clan["tag"]
+#     node_clan.name = clan["name"]
+#     node_clan.description = clan["description"]
+#     node_clan.clan_type = clan["type"]
+#     node_clan.score = clan["score"]
+#     node_clan.warTrophies = clan["warTrophies"]
+#     node_clan.memberCount = clan["memberCount"]
+#     node_clan.requiredScore = clan["requiredScore"]
+#     node_clan.donations = clan["donations"]
 
-    return node_player
+#     clash.push(node_clan)
 
-    #updateDeck(player["currentDeck"], node_player)
+#     for player in clan["members"]:
+#         updatePlayer(player["tag"], node_clan)
+#         updateBattles(player["tag"])
 
-def updateDeck(deck, player):
+# def updatePlayer_old(tag, clan = None):
+#     player = royalerequest.getPlayer(base_url, headers, tag)
 
-    """
-    Create a deck object with a unique hash of the cards
+#     node_player = Player()
+#     node_player.tag = player["tag"]
+#     node_player.name = player["name"]
+#     if "role" in player["clan"]:
+#         node_player.clan_role = player["clan"]["role"]
+#     node_player.trophies = player["trophies"]
+#     # node_player.donations = player["clan"]["donations"]
+#     # node_player.donationsReceived = player["clan"]["donationsReceived"]
+#     # node_player.donationsDelta = player["clan"]["donationsDelta"]
 
-    Keyword arguments:
-    deck -- a list of card json objects
-    player -- a GraphObject Player instance
-    """
+#     if clan != None:
+#         node_player.member_of.add(clan)
 
-    assert(isinstance(player, Player))
+#     clash.push(node_player)
 
-    node_deck = Deck()
+#     return node_player
 
-    deckKeys = []
-    deckElixier = []
+#     #updateDeck(player["currentDeck"], node_player)
+
+# def updateDeck_old(deck, player):
+
+#     """
+#     Create a deck object with a unique hash of the cards
+
+#     Keyword arguments:
+#     deck -- a list of card json objects
+#     player -- a GraphObject Player instance
+#     """
+
+#     assert(isinstance(player, Player))
+
+#     node_deck = Deck()
+
+#     deckKeys = []
+#     deckElixier = []
     
-    for card in deck:
-        deckKeys.append(card["key"])
-        deckElixier.append(card["elixir"])
+#     for card in deck:
+#         deckKeys.append(card["key"])
+#         deckElixier.append(card["elixir"])
 
-        node_card = Card.match(clash, card["key"]).first()
-        node_deck.contains.add(node_card)
+#         node_card = Card.match(clash, card["key"]).first()
+#         node_deck.contains.add(node_card)
 
-    node_deck.setHash(deckKeys)
-    node_deck.calculateExilir(deckElixier)
+#     node_deck.setHash(deckKeys)
+#     node_deck.calculateExilir(deckElixier)
 
-    node_deck.played.add(player)
+#     node_deck.played.add(player)
 
-    clash.push(node_deck)
+#     clash.push(node_deck)
 
-    return node_deck
+#     return node_deck
 
-def updateBattles(tag):
-    battles = royalerequest.getBattles(base_url, headers, tag)
+# def updateBattles_old(tag):
+#     battles = royalerequest.getBattles(base_url, headers, tag)
 
-    for battle in battles:
-        node_battle = Battle()
+#     for battle in battles:
+#         node_battle = Battle()
 
-        node_battle.utcTime = battle["utcTime"]
-        node_battle.battle_type = battle["type"]
-        node_battle.isLadderTournament = battle["isLadderTournament"]
-        node_battle.battle_mode = battle["mode"]["name"]
+#         node_battle.utcTime = battle["utcTime"]
+#         node_battle.battle_type = battle["type"]
+#         node_battle.isLadderTournament = battle["isLadderTournament"]
+#         node_battle.battle_mode = battle["mode"]["name"]
 
-        node_battleTeam = updateBattleTeam(battle["team"])
-        node_battle.battled_in.add(node_battleTeam)
+#         node_battleTeam = updateBattleTeam(battle["team"])
+#         node_battle.battled_in.add(node_battleTeam)
 
-        node_battleOpponent = updateBattleTeam(battle["opponent"])
-        node_battle.battled_in.add(node_battleOpponent)
+#         node_battleOpponent = updateBattleTeam(battle["opponent"])
+#         node_battle.battled_in.add(node_battleOpponent)
 
-        clash.push(node_battle)
+#         clash.push(node_battle)
 
-def updateBattleTeam(team):
-    node_battleTeam = BattleTeam()
+# def updateBattleTeam_old(team):
+#     node_battleTeam = BattleTeam()
     
-    for player in team:
-        node_player = Player.match(clash, player["tag"]).first()
+#     for player in team:
+#         node_player = Player.match(clash, player["tag"]).first()
 
-        if not node_player:
-            node_player = updatePlayer(player["tag"])
+#         if not node_player:
+#             node_player = updatePlayer(player["tag"])
 
-        node_battleTeam.played_in.add(node_player)
+#         node_battleTeam.played_in.add(node_player)
 
-        node_deck = updateDeck(player["deck"], node_player)
+#         node_deck = updateDeck(player["deck"], node_player)
 
-        node_battleTeam.used_deck.add(node_deck)
+#         node_battleTeam.used_deck.add(node_deck)
 
-        clash.push(node_battleTeam)
+#         clash.push(node_battleTeam)
 
-    return node_battleTeam
+#     return node_battleTeam
 
 if __name__ == "__main__":
+    graph = createnodes.getGraph()
     base_url = royalerequest.getBaseURL()
     headers = royalerequest.getHeaders()
 
-    updateCards()
-    updateClan("VV80RJY")
+    updateCards(graph, base_url, headers)
+    updateClan(graph, base_url, headers, "VV80RJY")
