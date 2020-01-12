@@ -12,6 +12,7 @@ class Card(GraphObject):
     rarity = Property()
     description = Property()
 
+
 class Player(GraphObject):
     __primarykey__ = "tag"
 
@@ -24,6 +25,7 @@ class Player(GraphObject):
     donations_delta = Property()
 
     member_of = RelatedTo("Clan")
+
 
 class Clan(GraphObject):
     __primarykey__ = "tag"
@@ -39,6 +41,7 @@ class Clan(GraphObject):
     donations = Property()
 
     member_of = RelatedFrom("Player")
+
 
 class Deck(GraphObject):
     __primarykey__ = "hash"
@@ -98,6 +101,7 @@ class Deck(GraphObject):
             print("Assert Error for deck: {}".format(deck))
             raise err
 
+
 class Battle(GraphObject):
 
     battle_type = Property()
@@ -108,6 +112,7 @@ class Battle(GraphObject):
     battled_in = RelatedFrom("BattleTeam")
     won = RelatedFrom("Player")
     lost = RelatedFrom("Player")
+
 
 class BattleTeam(GraphObject):
 
