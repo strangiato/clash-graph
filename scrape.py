@@ -50,7 +50,10 @@ def updateBattles(graph, base_url, headers, tag):
     battles = royalerequest.getBattles(base_url, headers, tag)
 
     for battle in battles:
-        
+        # skip DoubleDeck_Tournaments because they use two decks for each player
+        if battle["mode"]["name"] == "DoubleDeck_Tournament":
+            continue
+
         team_node = updateTeam(graph, battle["team"])
         opponent_node = updateTeam(graph, battle["opponent"])
 
@@ -112,6 +115,4 @@ if __name__ == "__main__":
     players.extend(clan_members)
 
     for player in players:
-        if player == "2PLR2R2QP":
-            continue
         updateBattles(graph, base_url, headers, player)
