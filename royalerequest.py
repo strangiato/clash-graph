@@ -35,6 +35,11 @@ def getBattles(base_url, headers, tag):
     request_url = '{base_url}/player/{tag}/battles'.format(base_url = base_url, tag = tag)
     return __getData(request_url, headers)
 
+def getWar(base_url, headers, tag):
+    print("Get Clan Current War: {}".format(tag))
+    request_url = '{base_url}/clan/{tag}/war'.format(base_url = base_url, tag = tag)
+    return __getData(request_url, headers)
+
 def __getData(url, headers):
     response = requests.request("GET", url, headers=headers)
     return response.json()

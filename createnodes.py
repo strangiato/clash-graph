@@ -1,5 +1,5 @@
 from py2neo import Graph
-from graphmodels import Clan, Player, Card, Deck, Battle, Team
+from graphmodels import Clan, Player, Card, Deck, Battle, Team, WarSeason, War, WarStanding, WarParticipation
 
 def getGraph():
     return Graph(host = "localhost", auth=("neo4j", "test123"))

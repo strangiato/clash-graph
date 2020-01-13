@@ -144,3 +144,42 @@ class Team(GraphObject):
     used_deck = RelatedTo("Deck")
     played_in = RelatedFrom("Player")
     battled_in = RelatedTo("Battle")
+
+class WarSeason(GraphObject):
+    __primarykey__ = "season_number"
+
+    season_number = Property
+
+    part_of_season = RelatedFrom("War")
+
+class War(GraphObject):
+
+    war_end_time = Property()
+
+    battled_in = RelatedFrom("WarStanding")
+    part_of_season = RelatedTo("WarSeason")
+    
+
+class WarStanding(GraphObject):
+
+    participants = Property()
+    battles_played = Property()
+    wins = Property()
+    crowns = Property()
+    war_tophies = Property()
+    war_trophies_change = Property()
+
+    battled_in = RelatedFrom("WarParticipation")
+    battled_in = RelatedTo("War")
+
+class WarParticipation(GraphObject):
+    
+    cards_earched = Property()
+    battle_count = Property()
+    battles_played = Property()
+    battles_missed = Property()
+    wins = Property()
+    collection_day_battles_played = Property()
+
+    battled_in = RelatedFrom("Player")
+    battled_in = RelatedTo("WarStanding")
