@@ -49,9 +49,16 @@ def updateClan(graph, base_url, headers, tag):
 def updateBattles(graph, base_url, headers, tag):
     battles = royalerequest.getBattles(base_url, headers, tag)
 
+    modes = [
+        "Touchdown_MegaDeck_Challenge",
+        "Touchdown_MegaDeck_Ladder",
+        "DoubleDeck_Tournament",
+        "DoubleDeck_Friendly"
+    ]
+
     for battle in battles:
-        # skip DoubleDeck_Tournaments because they use two decks for each player
-        if battle["mode"]["name"] == "DoubleDeck_Tournament":
+        # skip game modes because they use two decks for each player
+        if battle["mode"]["name"] in modes:
             continue
 
         team_node = updateTeam(graph, battle["team"])
@@ -111,8 +118,10 @@ if __name__ == "__main__":
     players = []
 
     updateCards(graph, base_url, headers)
-    clan_members = updateClan(graph, base_url, headers, "VV80RJY")
-    players.extend(clan_members)
+
+    for clan in clans:
+        clan_members = updateClan(graph, base_url, headers, clan)
+        players.extend(clan_members)
 
     for player in players:
         updateBattles(graph, base_url, headers, player)
