@@ -1,5 +1,5 @@
 from py2neo import Graph
-from graphmodels import Clan, Player, Card, Deck, Battle, BattleTeam
+from graphmodels import Clan, Player, Card, Deck, Battle, Team
 
 def getGraph():
     return Graph(host = "localhost", auth=("neo4j", "test123"))
@@ -39,7 +39,6 @@ def createClan(graph, tag, name, description = None, clan_type = None, score = N
     return clan_node
 
 def createPlayer(graph, tag, name, trophies = None, clan_role = None, clan_node = None):
-
     player_node = Player.match(graph, tag).first()
 
     if player_node is None:
@@ -60,28 +59,66 @@ def createPlayer(graph, tag, name, trophies = None, clan_role = None, clan_node 
     return player_node
 
 def createDeck(graph, deck):
-    # todo: 
-    # find way to better check to see if the deck already exists
-    # if it does already exist skip the card lookup and return the existing node
 
-    #deck_node = Deck.match(graph, Deck.deckHash(deck)).first()
-
-    #if deck_node is None:
     deck_node = Deck()
-    deck_node.deckHash(deck)
+    deck_hash = deck_node.deckHash(deck)
 
-    for card in deck:
-        node_card = Card.match(graph, card["key"]).first()
-        deck_node.contains.add(node_card)
+    deck_node_search = Deck.match(graph, deck_hash).first()
 
-    deck_node.calculateExilir(deck)
+    if deck_node_search is None:
+    
+        for card in deck:
+            node_card = Card.match(graph, card["key"]).first()
+            deck_node.contains.add(node_card)
 
-    graph.merge(deck_node)
+        deck_node.calculateExilir(deck)
+
+        graph.merge(deck_node)
+    else:
+        deck_node = deck_node_search
 
     return deck_node
 
-def createBattle(graph):
-    return True
+def createBattle(graph, battle_type, utc_time, is_ladder_tournament, battle_mode, team_node, opponent_node):
+    
+    # validate objects are the correct types
+    assert(isinstance(team_node, Team))
+    assert(isinstance(opponent_node, Team))
 
-def createBattleTeam(graph):
-    return True
+    # todo:
+    # add hashing function to identify when a battle has already been recorded
+
+    battle_node = Battle()
+
+    battle_node.battle_type = battle_type
+    battle_node.utc_time = utc_time
+    battle_node.is_ladder_tournament = is_ladder_tournament
+    battle_node.battle_mode = battle_mode
+
+    # todo:
+    # add won/lost properties to relationship
+    battle_node.battled_in.add(team_node)
+    battle_node.battled_in.add(opponent_node)
+    
+    graph.push(battle_node)
+
+    return battle_node
+
+def createTeam(graph, team, decks):
+    
+    # validate that the same number of teammembers and decks were provided
+    assert(len(team) == len(decks))
+
+    Team_node = Team()
+
+    for player, deck in zip(team, decks):
+        # validate the objects are the correct types
+        assert(isinstance(player, Player))
+        assert(isinstance(deck, Deck))
+
+        Team_node.played_in.add(player)
+        Team_node.used_deck.add(deck)
+
+    graph.push(Team_node)
+
+    return Team_node

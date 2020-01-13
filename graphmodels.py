@@ -103,18 +103,41 @@ class Deck(GraphObject):
 
 
 class Battle(GraphObject):
+    # __primarykey__ = "hash"
 
+    # hash = Property()
     battle_type = Property()
     utc_time = Property()
     is_ladder_tournament = Property()
     battle_mode = Property()
 
-    battled_in = RelatedFrom("BattleTeam")
+    battled_in = RelatedFrom("Team")
     won = RelatedFrom("Player")
     lost = RelatedFrom("Player")
 
+    # def battleHash(self, deck):
+        
+    #     """
+    #     Set the hash property of the deck using the keys of the cards
 
-class BattleTeam(GraphObject):
+    #     Keyword arguments:
+    #     deck -- a list of eight card keys
+    #     """
+
+    #     #self.deckSizeCheck(deck)
+
+    #     hashSum = 0
+    #     for card in deck:
+    #         cardHash = hashlib.sha1(card["key"].encode('utf-8')).hexdigest()
+    #         hashSum += int(cardHash, 16)
+
+    #     hash = hex(hashSum)
+
+    #     self.hash = hash
+        
+    #     return hash
+
+class Team(GraphObject):
 
     team_size = Property()
 
