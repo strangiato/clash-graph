@@ -89,18 +89,29 @@ def createBattle(graph, battle_type, utc_time, is_ladder_tournament, battle_mode
     # add hashing function to identify when a battle has already been recorded
 
     battle_node = Battle()
+    battle_hash = battle_node.setHash(utc_time, team_node, opponent_node)
 
-    battle_node.battle_type = battle_type
-    battle_node.utc_time = utc_time
-    battle_node.is_ladder_tournament = is_ladder_tournament
-    battle_node.battle_mode = battle_mode
+    battle_node_search = Battle.match(graph, battle_hash).first()
 
-    # todo:
-    # add won/lost properties to relationship
-    battle_node.battled_in.add(team_node)
-    battle_node.battled_in.add(opponent_node)
-    
-    graph.push(battle_node)
+    if battle_node_search is None:
+
+        battle_node = Battle()
+
+        battle_node.setHash(utc_time, team_node, opponent_node)
+
+        battle_node.battle_type = battle_type
+        battle_node.utc_time = utc_time
+        battle_node.is_ladder_tournament = is_ladder_tournament
+        battle_node.battle_mode = battle_mode
+
+        # todo:
+        # add won/lost properties to relationship
+        battle_node.battled_in.add(team_node)
+        battle_node.battled_in.add(opponent_node)
+        
+        graph.push(battle_node)
+    else:
+        battle_node = battle_node_search
 
     return battle_node
 
