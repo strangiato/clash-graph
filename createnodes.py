@@ -1,10 +1,12 @@
 from py2neo import Graph
 from graphmodels import Clan, Player, Card, Deck, Battle, Team, WarSeason, War, WarStanding, WarParticipation
 
-def getGraph():
+
+def get_graph():
     return Graph(host = "localhost", auth=("neo4j", "test123"))
 
-def createCard(graph, key, name, elixir, card_type, rarity, description):
+
+def create_card(graph, key, name, elixir, card_type, rarity, description):
     card_node = Card.match(graph, key).first()
 
     if card_node is None:
@@ -19,7 +21,8 @@ def createCard(graph, key, name, elixir, card_type, rarity, description):
 
     return card_node
 
-def createClan(graph, tag, name, description = None, clan_type = None, score = None, war_trophies = None, member_count = None, required_score = None, donations = None):
+
+def create_clan(graph, tag, name, description = None, clan_type = None, score = None, war_trophies = None, member_count = None, required_score = None, donations = None):
     clan_node = Clan.match(graph, tag).first()
 
     if clan_node is None:
@@ -38,7 +41,7 @@ def createClan(graph, tag, name, description = None, clan_type = None, score = N
 
     return clan_node
 
-def createPlayer(graph, tag, name, trophies = None, clan_role = None, clan_node = None):
+def create_player(graph, tag, name, trophies = None, clan_role = None, clan_node = None):
     player_node = Player.match(graph, tag).first()
 
     if player_node is None:
@@ -58,7 +61,8 @@ def createPlayer(graph, tag, name, trophies = None, clan_role = None, clan_node 
 
     return player_node
 
-def createDeck(graph, deck):
+
+def create_deck(graph, deck):
 
     deck_node = Deck()
     deck_hash = deck_node.deckHash(deck)
@@ -79,7 +83,8 @@ def createDeck(graph, deck):
 
     return deck_node
 
-def createBattle(graph, battle_type, utc_time, is_ladder_tournament, battle_mode, team_node, opponent_node):
+
+def create_battle(graph, battle_type, utc_time, is_ladder_tournament, battle_mode, team_node, opponent_node):
     
     # validate objects are the correct types
     assert(isinstance(team_node, Team))
@@ -115,7 +120,8 @@ def createBattle(graph, battle_type, utc_time, is_ladder_tournament, battle_mode
 
     return battle_node
 
-def createTeam(graph, team, decks):
+
+def create_team(graph, team, decks):
     
     # validate that the same number of teammembers and decks were provided
     assert(len(team) == len(decks))
@@ -133,3 +139,4 @@ def createTeam(graph, team, decks):
     graph.push(Team_node)
 
     return Team_node
+    

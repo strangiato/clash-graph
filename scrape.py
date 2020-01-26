@@ -1,11 +1,12 @@
 import royalerequest
 import createnodes
 
-def updateCards(graph, base_url, headers):
-    cards = royalerequest.getCards(base_url, headers)
+
+def update_cards(graph, base_url, headers):
+    cards = royalerequest.get_cards(base_url, headers)
 
     for card in cards:
-        createnodes.createCard(
+        createnodes.create_card(
             graph,
             card["key"],
             card["name"],
@@ -15,10 +16,11 @@ def updateCards(graph, base_url, headers):
             card["description"]
         )
 
-def updateClan(graph, base_url, headers, tag):
-    clan = royalerequest.getClan(base_url, headers, tag)
 
-    clan_node = createnodes.createClan(
+def update_clan(graph, base_url, headers, tag):
+    clan = royalerequest.get_clan(base_url, headers, tag)
+
+    clan_node = createnodes.create_clan(
         graph,
         clan["tag"],
         clan["name"],
@@ -33,7 +35,7 @@ def updateClan(graph, base_url, headers, tag):
     clanMembers = []
 
     for player in clan["members"]:
-        createnodes.createPlayer(
+        createnodes.create_player(
             graph,
             player["tag"],
             player["name"],
@@ -46,10 +48,11 @@ def updateClan(graph, base_url, headers, tag):
 
     return clanMembers
 
-def updateBattles(graph, base_url, headers, tag):
-    battles = royalerequest.getBattles(base_url, headers, tag)
 
-    modes = [
+def update_battles(graph, base_url, headers, tag):
+    battles = royalerequest.get_battles(base_url, headers, tag)
+
+    MODES = [
         "Touchdown_MegaDeck_Challenge",
         "Touchdown_MegaDeck_Ladder",
         "DoubleDeck_Tournament",
@@ -58,13 +61,13 @@ def updateBattles(graph, base_url, headers, tag):
 
     for battle in battles:
         # skip game modes because they use two decks for each player
-        if battle["mode"]["name"] in modes:
+        if battle["mode"]["name"] in MODES:
             continue
 
-        team_node = updateTeam(graph, battle["team"])
-        opponent_node = updateTeam(graph, battle["opponent"])
+        team_node = update_team(graph, battle["team"])
+        opponent_node = update_team(graph, battle["opponent"])
 
-        createnodes.createBattle(
+        createnodes.create_battle(
             graph,
             battle["type"],
             battle["utcTime"],
@@ -74,7 +77,8 @@ def updateBattles(graph, base_url, headers, tag):
             opponent_node
         )
 
-def updateTeam(graph, team):
+
+def update_team(graph, team):
         team_list = []
         deck_list = []
 
@@ -83,25 +87,25 @@ def updateTeam(graph, team):
             clan_node = None
             # get the clan if they have one
             if player["clan"] is not None:
-                clan_node = createnodes.createClan(
+                clan_node = createnodes.create_clan(
                     graph,
                     player["clan"]["tag"],
                     player["clan"]["name"]
                 )
 
-            team_list.append(createnodes.createPlayer(
+            team_list.append(createnodes.create_player(
                 graph, 
                 player["tag"],
                 player["name"],
                 clan_node=clan_node
             ))
 
-            deck_list.append(createnodes.createDeck(
+            deck_list.append(createnodes.create_deck(
                 graph,
                 player["deck"]
             ))
 
-        team_node = createnodes.createTeam(
+        team_node = createnodes.create_team(
             graph, 
             team_list, 
             deck_list
@@ -109,19 +113,20 @@ def updateTeam(graph, team):
 
         return team_node
 
+
 if __name__ == "__main__":
-    graph = createnodes.getGraph()
-    base_url = royalerequest.getBaseURL()
-    headers = royalerequest.getHeaders()
+    graph = createnodes.get_graph()
+    BASE_URL = royalerequest.get_base_url()
+    HEADERS = royalerequest.get_headers()
 
     clans = ["VV80RJY"]
     players = []
 
-    updateCards(graph, base_url, headers)
+    update_cards(graph, BASE_URL, HEADERS)
 
     for clan in clans:
-        clan_members = updateClan(graph, base_url, headers, clan)
+        clan_members = update_clan(graph, BASE_URL, HEADERS, clan)
         players.extend(clan_members)
 
     for player in players:
-        updateBattles(graph, base_url, headers, player)
+        update_battles(graph, BASE_URL, HEADERS, player)
