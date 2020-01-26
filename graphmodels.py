@@ -130,6 +130,7 @@ class Battle(GraphObject):
 
         return hash
 
+
 class Team(GraphObject):
 
     team_size = Property()
@@ -138,12 +139,14 @@ class Team(GraphObject):
     played_in = RelatedFrom("Player")
     battled_in = RelatedTo("Battle")
 
+
 class WarSeason(GraphObject):
     __primarykey__ = "season_number"
 
     season_number = Property
 
     part_of_season = RelatedFrom("War")
+
 
 class War(GraphObject):
 
@@ -165,6 +168,7 @@ class WarStanding(GraphObject):
     battled_in = RelatedFrom("WarParticipation")
     battled_in = RelatedTo("War")
 
+
 class WarParticipation(GraphObject):
     
     cards_earched = Property()
@@ -176,3 +180,4 @@ class WarParticipation(GraphObject):
 
     battled_in = RelatedFrom("Player")
     battled_in = RelatedTo("WarStanding")
+    
