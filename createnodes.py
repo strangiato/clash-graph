@@ -65,7 +65,7 @@ def create_player(graph, tag, name, trophies = None, clan_role = None, clan_node
 def create_deck(graph, deck):
 
     deck_node = Deck()
-    deck_hash = deck_node.deckHash(deck)
+    deck_hash = deck_node.deck_hash(deck)
 
     deck_node_search = Deck.match(graph, deck_hash).first()
 
@@ -75,7 +75,7 @@ def create_deck(graph, deck):
             node_card = Card.match(graph, card["key"]).first()
             deck_node.contains.add(node_card)
 
-        deck_node.calculateExilir(deck)
+        deck_node.calculate_exilir(deck)
 
         graph.merge(deck_node)
     else:
@@ -126,17 +126,17 @@ def create_team(graph, team, decks):
     # validate that the same number of teammembers and decks were provided
     assert(len(team) == len(decks))
 
-    Team_node = Team()
+    team_node = Team()
 
     for player, deck in zip(team, decks):
         # validate the objects are the correct types
         assert(isinstance(player, Player))
         assert(isinstance(deck, Deck))
 
-        Team_node.played_in.add(player)
-        Team_node.used_deck.add(deck)
+        team_node.played_in.add(player)
+        team_node.used_deck.add(deck)
 
-    graph.push(Team_node)
+    graph.push(team_node)
 
-    return Team_node
+    return team_node
     
