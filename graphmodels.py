@@ -52,7 +52,7 @@ class Deck(GraphObject):
     contains = RelatedTo("Card")
     played = RelatedFrom("Player")
 
-    def deckHash(self, deck):
+    def deck_hash(self, deck):
         
         """
         Set the hash property of the deck using the keys of the cards
@@ -60,20 +60,20 @@ class Deck(GraphObject):
         Keyword arguments:
         deck -- a list of eight card keys
         """
-        self.deckSizeCheck(deck)
+        self.deck_size_check(deck)
 
-        hashSum = 0
+        hash_sum = 0
         for card in deck:
-            cardHash = hashlib.sha1(card["key"].encode('utf-8')).hexdigest()
-            hashSum += int(cardHash, 16)
+            card_hash = hashlib.sha1(card["key"].encode('utf-8')).hexdigest()
+            hash_sum += int(card_hash, 16)
 
-        hash = hex(hashSum)
+        hash = hex(hash_sum)
 
         self.hash = hash
         
         return hash
 
-    def calculateExilir(self, deck):
+    def calculate_exilir(self, deck):
         """
         Calculate the average elixir of the deck
 
@@ -81,20 +81,20 @@ class Deck(GraphObject):
         deck -- a list of eight card elixirs
         """
 
-        self.deckSizeCheck(deck)
+        self.deck_size_check(deck)
 
-        elixirTotal = 0
+        elixir_total = 0
 
         for card in deck:
-            elixirTotal += card["elixir"]
+            elixir_total += card["elixir"]
 
-        average = round(elixirTotal / len(deck), 2)
+        average = round(elixir_total / len(deck), 2)
 
         self.average_elixir = average
 
         return average
 
-    def deckSizeCheck(self, deck):
+    def deck_size_check(self, deck):
         try:
             assert len(deck) == 8
         except AssertionError as err:
@@ -180,4 +180,3 @@ class WarParticipation(GraphObject):
 
     battled_in = RelatedFrom("Player")
     battled_in = RelatedTo("WarStanding")
-    
