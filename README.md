@@ -10,7 +10,7 @@ Use the environment.yml file to create a conda environment with all of the requi
 
 ### API Key
 
-You will need to request an API key from royaleapi.com.  See instructions [here](https://docs.royaleapi.com/#/authentication).
+You will need to request an API key from https://royaleapi.com.  See instructions [here](https://docs.royaleapi.com/#/authentication).
 
 Once you have requested an API key create an environment variable called CLASH_API.
 
