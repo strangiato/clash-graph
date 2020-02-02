@@ -212,7 +212,7 @@ def get_war_participant(graph, player_node, war_standing_node):
     return war_participant_node, war_participant_hash
 
 
-def create_war_participant(graph, cards_earched, battle_count, battles_played, battles_missed, wins, collection_day_battles_played, player_node, war_standing_node):
+def create_war_participant(graph, cards_earned, battle_count, battles_played, battles_missed, wins, collection_day_battles_played, player_node, war_standing_node):
 
     war_participant_node, war_participant_hash = get_war_participant(graph, player_node, war_standing_node)
 
@@ -220,7 +220,7 @@ def create_war_participant(graph, cards_earched, battle_count, battles_played, b
         war_participant_node = War_Participant()
 
         war_participant_node.hash = war_participant_hash
-        war_participant_node.cards_earched = cards_earched
+        war_participant_node.cards_earned = cards_earned
         war_participant_node.battle_count = battle_count
         war_participant_node.battles_played = battles_played
         war_participant_node.battles_missed = battles_missed

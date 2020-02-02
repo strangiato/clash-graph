@@ -176,7 +176,7 @@ class War_Participant(GraphObject):
     __primarykey__ = "hash"
 
     hash = Property()
-    cards_earched = Property()
+    cards_earned = Property()
     battle_count = Property()
     battles_played = Property()
     battles_missed = Property()
