@@ -17,7 +17,7 @@ Once you have requested an API key create an environment variable called CLASH_A
 On a *nix environment you can set the environment variable using this command:
 
 ```sh
-export CLASH_API="<your_api_key_here"
+export CLASH_API="<your_api_key_here>"
 ```
 
 ### Starting the Database
