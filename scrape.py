@@ -199,7 +199,10 @@ if __name__ == "__main__":
 
         clans = update_clan_warlog(graph, BASE_URL, HEADERS, clan, clans)
 
-        if depth == 20:
+        # this is not really a depth tracker
+        # instead it just looks at the number of clans scanned
+        # would like to eventually look at this for true depth tracking
+        if depth == 5:
             break
         
     for player in players:
