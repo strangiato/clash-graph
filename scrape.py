@@ -48,7 +48,7 @@ def update_clan(graph, base_url, headers, tag):
 
     return clanMembers
 
-def update_clan_warlog(graph, base_url, headers, tag):
+def update_clan_warlog(graph, base_url, headers, tag, clans):
     warlog = royalerequest.get_warlog(base_url, headers, tag)
 
     primary_clan_node = createnodes.create_clan(
@@ -72,6 +72,10 @@ def update_clan_warlog(graph, base_url, headers, tag):
         )
 
         for clan_results in war["standings"]:
+            
+            if clan_results["tag"] not in clans:
+                clans.append(clan_results["tag"])
+            
             clan_node = createnodes.create_clan(
                 graph,
                 clan_results["tag"],
@@ -111,6 +115,7 @@ def update_clan_warlog(graph, base_url, headers, tag):
                 player_node,
                 primary_war_standing_node
             )
+    return clans
 
 
 def update_battles(graph, base_url, headers, tag):
@@ -188,12 +193,15 @@ if __name__ == "__main__":
 
     update_cards(graph, BASE_URL, HEADERS)
 
-    for clan in clans:
+    for depth, clan in enumerate(clans, start=1):
         clan_members = update_clan(graph, BASE_URL, HEADERS, clan)
-        update_clan_warlog(graph, BASE_URL, HEADERS, clan)
-
         players.extend(clan_members)
 
+        clans = update_clan_warlog(graph, BASE_URL, HEADERS, clan, clans)
+
+        if depth == 20:
+            break
+        
     for player in players:
         update_battles(graph, BASE_URL, HEADERS, player)
     
