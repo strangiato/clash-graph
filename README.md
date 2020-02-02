@@ -34,7 +34,7 @@ docker-compose up
 
 ### Scraping your Clan
 
-Update the clans list in the scrape.py file to start scraping your clans data.
+Update the clans list in the scrape.py file to start scraping your clans data by inserting your clans tag number.  Do not include '#' at the start of the tag.
 
 ```Python
 clans = ["<your_clans_tag>"]
