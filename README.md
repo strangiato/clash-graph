@@ -22,7 +22,7 @@ export CLASH_API="<your_api_key_here>"
 
 ### Starting the Database
 
-clash-graph uses a neo4j instance running on a local docker container by default.
+clash-graph uses a neo4j instance running as a local docker container by default.
 
 You must have docker running on your local machine.
 
