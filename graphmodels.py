@@ -140,24 +140,27 @@ class Team(GraphObject):
     battled_in = RelatedTo("Battle")
 
 
-class WarSeason(GraphObject):
+class War_Season(GraphObject):
     __primarykey__ = "season_number"
 
-    season_number = Property
+    season_number = Property()
 
     part_of_season = RelatedFrom("War")
 
 
 class War(GraphObject):
+    __primarykey__ = "war_end_time"
 
     war_end_time = Property()
 
-    battled_in = RelatedFrom("WarStanding")
-    part_of_season = RelatedTo("WarSeason")
+    battled_in = RelatedFrom("War_Standing")
+    part_of_season = RelatedTo("War_Season")
     
 
-class WarStanding(GraphObject):
+class War_Standing(GraphObject):
+    __primarykey__ = "hash"
 
+    hash = Property()
     participants = Property()
     battles_played = Property()
     wins = Property()
@@ -165,12 +168,14 @@ class WarStanding(GraphObject):
     war_tophies = Property()
     war_trophies_change = Property()
 
-    battled_in = RelatedFrom("WarParticipation")
-    battled_in = RelatedTo("War")
+    battled_in = RelatedFrom("War_Participant")
+    warred_in = RelatedFrom("Clan")
+    results_from = RelatedTo("War")
 
+class War_Participant(GraphObject):
+    __primarykey__ = "hash"
 
-class WarParticipation(GraphObject):
-    
+    hash = Property()
     cards_earched = Property()
     battle_count = Property()
     battles_played = Property()
@@ -179,4 +184,15 @@ class WarParticipation(GraphObject):
     collection_day_battles_played = Property()
 
     battled_in = RelatedFrom("Player")
-    battled_in = RelatedTo("WarStanding")
+    resulted_in = RelatedTo("War_Standing")
+
+def get_hash(hash_array):
+
+    hashSum = 0
+    for item in hash_array:
+        itemHash = hashlib.sha1(str(item).encode('utf-8')).hexdigest()
+        hashSum += int(itemHash, 16)
+
+    hash = hex(hashSum)
+
+    return hash

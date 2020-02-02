@@ -48,6 +48,70 @@ def update_clan(graph, base_url, headers, tag):
 
     return clanMembers
 
+def update_clan_warlog(graph, base_url, headers, tag):
+    warlog = royalerequest.get_warlog(base_url, headers, tag)
+
+    primary_clan_node = createnodes.create_clan(
+        graph,
+        tag
+    )
+
+    primary_war_standing_node = None    
+
+    for war in warlog:
+        
+        war_season_node = createnodes.create_war_season(
+            graph,
+            war["seasonNumber"]
+        )
+
+        war_node = createnodes.create_war(
+            graph,
+            war["warEndTime"],
+            war_season_node
+        )
+
+        for clan_results in war["standings"]:
+            clan_node = createnodes.create_clan(
+                graph,
+                clan_results["tag"],
+                clan_results["name"]
+            )
+            
+            war_standing_node = createnodes.create_war_standing(
+                graph,
+                clan_results["participants"],
+                clan_results["battlesPlayed"],
+                clan_results["wins"],
+                clan_results["crowns"],
+                clan_results["warTrophies"],
+                clan_results["warTrophiesChange"],
+                clan_node,
+                war_node
+            )
+
+            if clan_node == primary_clan_node:
+                primary_war_standing_node = war_standing_node
+
+        for participant in war["participants"]:
+            player_node = createnodes.create_player(
+                graph,
+                participant["tag"],
+                participant["name"]
+            )
+
+            createnodes.create_war_participant(
+                graph,
+                participant["cardsEarned"],
+                participant["battleCount"],
+                participant["battlesPlayed"],
+                participant["battlesMissed"],
+                participant["wins"],
+                participant["collectionDayBattlesPlayed"],
+                player_node,
+                primary_war_standing_node
+            )
+
 
 def update_battles(graph, base_url, headers, tag):
     battles = royalerequest.get_battles(base_url, headers, tag)
@@ -126,7 +190,11 @@ if __name__ == "__main__":
 
     for clan in clans:
         clan_members = update_clan(graph, BASE_URL, HEADERS, clan)
+        update_clan_warlog(graph, BASE_URL, HEADERS, clan)
+
         players.extend(clan_members)
 
     for player in players:
         update_battles(graph, BASE_URL, HEADERS, player)
+    
+    

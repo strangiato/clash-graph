@@ -51,6 +51,12 @@ def get_war(base_url, headers, tag):
     
     return __get_data(request_url, headers)
 
+def get_warlog(base_url, headers, tag):
+    print("Get Clan Warlog: {}".format(tag))
+    request_url = '{base_url}/clan/{tag}/warlog'.format(base_url = base_url, tag = tag)
+    
+    return __get_data(request_url, headers)
+
 
 def __get_data(url, headers):
     response = requests.request("GET", url, headers=headers)
