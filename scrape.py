@@ -48,6 +48,7 @@ def update_clan(graph, base_url, headers, tag):
 
     return clanMembers
 
+
 def update_clan_warlog(graph, base_url, headers, tag, clans):
     warlog = royalerequest.get_warlog(base_url, headers, tag)
 
@@ -56,10 +57,10 @@ def update_clan_warlog(graph, base_url, headers, tag, clans):
         tag
     )
 
-    primary_war_standing_node = None    
+    primary_war_standing_node = None
 
     for war in warlog:
-        
+
         war_season_node = createnodes.create_war_season(
             graph,
             war["seasonNumber"]
@@ -72,16 +73,16 @@ def update_clan_warlog(graph, base_url, headers, tag, clans):
         )
 
         for clan_results in war["standings"]:
-            
+
             if clan_results["tag"] not in clans:
                 clans.append(clan_results["tag"])
-            
+
             clan_node = createnodes.create_clan(
                 graph,
                 clan_results["tag"],
                 clan_results["name"]
             )
-            
+
             war_standing_node = createnodes.create_war_standing(
                 graph,
                 clan_results["participants"],
@@ -148,39 +149,39 @@ def update_battles(graph, base_url, headers, tag):
 
 
 def update_team(graph, team):
-        team_list = []
-        deck_list = []
+    team_list = []
+    deck_list = []
 
-        for player in team:
-            
-            clan_node = None
-            # get the clan if they have one
-            if player["clan"] is not None:
-                clan_node = createnodes.create_clan(
-                    graph,
-                    player["clan"]["tag"],
-                    player["clan"]["name"]
-                )
+    for player in team:
 
-            team_list.append(createnodes.create_player(
-                graph, 
-                player["tag"],
-                player["name"],
-                clan_node=clan_node
-            ))
-
-            deck_list.append(createnodes.create_deck(
+        clan_node = None
+        # get the clan if they have one
+        if player["clan"] is not None:
+            clan_node = createnodes.create_clan(
                 graph,
-                player["deck"]
-            ))
+                player["clan"]["tag"],
+                player["clan"]["name"]
+            )
 
-        team_node = createnodes.create_team(
-            graph, 
-            team_list, 
-            deck_list
-        )
+        team_list.append(createnodes.create_player(
+            graph,
+            player["tag"],
+            player["name"],
+            clan_node=clan_node
+        ))
 
-        return team_node
+        deck_list.append(createnodes.create_deck(
+            graph,
+            player["deck"]
+        ))
+
+    team_node = createnodes.create_team(
+        graph,
+        team_list,
+        deck_list
+    )
+
+    return team_node
 
 
 if __name__ == "__main__":
@@ -204,8 +205,6 @@ if __name__ == "__main__":
         # would like to eventually look at this for true depth tracking
         if depth == 5:
             break
-        
+
     for player in players:
         update_battles(graph, BASE_URL, HEADERS, player)
-    
-    

@@ -8,7 +8,7 @@ logger.setLevel(logging.WARNING)
 
 formatter = logging.Formatter(
     '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-    )
+)
 
 file_handler = logging.FileHandler('logs/royalerequest.log')
 file_handler.setFormatter(formatter)
@@ -31,7 +31,7 @@ def get_headers():
 
     HEADERS = {
         'auth': API_KEY
-        }
+    }
 
     return HEADERS
 
@@ -59,21 +59,24 @@ def get_player(base_url, headers, tag):
 
 def get_battles(base_url, headers, tag):
     logger.info("Get Player Battles: {}".format(tag))
-    request_url = '{base_url}/player/{tag}/battles'.format(base_url=base_url, tag=tag)
+    request_url = '{base_url}/player/{tag}/battles'.format(
+        base_url=base_url, tag=tag)
 
     return __get_data(request_url, headers)
 
 
 def get_war(base_url, headers, tag):
     logger.info("Get Clan Current War: {}".format(tag))
-    request_url = '{base_url}/clan/{tag}/war'.format(base_url=base_url, tag=tag)
+    request_url = '{base_url}/clan/{tag}/war'.format(
+        base_url=base_url, tag=tag)
 
     return __get_data(request_url, headers)
 
 
 def get_warlog(base_url, headers, tag):
     logger.info("Get Clan Warlog: {}".format(tag))
-    request_url = '{base_url}/clan/{tag}/warlog'.format(base_url=base_url, tag=tag)
+    request_url = '{base_url}/clan/{tag}/warlog'.format(
+        base_url=base_url, tag=tag)
 
     return __get_data(request_url, headers)
 

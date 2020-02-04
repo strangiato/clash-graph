@@ -1,6 +1,7 @@
 from py2neo.ogm import GraphObject, Property, RelatedTo, RelatedFrom
 import hashlib
-from statistics import mean 
+from statistics import mean
+
 
 class Card(GraphObject):
     __primarykey__ = "key"
@@ -53,7 +54,6 @@ class Deck(GraphObject):
     played = RelatedFrom("Player")
 
     def deck_hash(self, deck):
-        
         """
         Set the hash property of the deck using the keys of the cards
 
@@ -70,7 +70,7 @@ class Deck(GraphObject):
         hash = hex(hash_sum)
 
         self.hash = hash
-        
+
         return hash
 
     def calculate_exilir(self, deck):
@@ -155,7 +155,7 @@ class War(GraphObject):
 
     battled_in = RelatedFrom("War_Standing")
     part_of_season = RelatedTo("War_Season")
-    
+
 
 class War_Standing(GraphObject):
     __primarykey__ = "hash"
@@ -172,6 +172,7 @@ class War_Standing(GraphObject):
     warred_in = RelatedFrom("Clan")
     results_from = RelatedTo("War")
 
+
 class War_Participant(GraphObject):
     __primarykey__ = "hash"
 
@@ -185,6 +186,7 @@ class War_Participant(GraphObject):
 
     battled_in = RelatedFrom("Player")
     resulted_in = RelatedTo("War_Standing")
+
 
 def get_hash(hash_array):
 
