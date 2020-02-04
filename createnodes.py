@@ -86,7 +86,7 @@ def create_deck(graph, deck):
     return deck_node
 
 
-def create_battle(graph, battle_type, utc_time, is_ladder_tournament, battle_mode, team_node, opponent_node):
+def create_battle(graph, battle_type, utc_time, is_ladder_tournament, battle_mode, crown_result, team_node, opponent_node):
 
     # validate objects are the correct types
     assert(isinstance(team_node, Team))
@@ -108,16 +108,35 @@ def create_battle(graph, battle_type, utc_time, is_ladder_tournament, battle_mod
         battle_node.is_ladder_tournament = is_ladder_tournament
         battle_node.battle_mode = battle_mode
 
-        # todo:
-        # add won/lost properties to relationship
-        battle_node.battled_in.add(team_node)
-        battle_node.battled_in.add(opponent_node)
+        battle_node.battled_in.add(team_node, properties={
+            "crown_result": crown_result,
+            "result": __battle_result(crown_result)
+        })
+
+        opponent_crown_result = -1 * crown_result
+
+        battle_node.battled_in.add(opponent_node, properties={
+            "crown_result": opponent_crown_result,
+            "result": __battle_result(opponent_crown_result)
+        })
 
         graph.push(battle_node)
     else:
         battle_node = battle_node_search
 
     return battle_node
+
+
+def __battle_result(crown_count):
+
+    if crown_count < 0:
+        result = "loss"
+    elif crown_count == 0:
+        result = "draw"
+    else:
+        result = "win"
+
+    return result
 
 
 def create_team(graph, team, decks):

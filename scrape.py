@@ -144,6 +144,7 @@ def update_battles(graph, base_url, headers, tag):
             battle["utcTime"],
             battle["isLadderTournament"],
             battle["mode"]["name"],
+            battle["winner"],
             team_node,
             opponent_node
         )
