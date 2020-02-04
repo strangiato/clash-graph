@@ -180,7 +180,7 @@ def get_war_standing(graph, clan_node, war_node):
     return war_standing_node, war_standing_hash
 
 
-def create_war_standing(graph, participants, battles_played, wins, crowns, war_tophies, war_trophies_change, clan_node, war_node):
+def create_war_standing(graph, participants, battles_played, wins, crowns, war_tophies, war_trophies_change, standing, clan_node, war_node):
 
     war_standing_node, war_standing_hash = get_war_standing(
         graph, clan_node,
@@ -199,7 +199,8 @@ def create_war_standing(graph, participants, battles_played, wins, crowns, war_t
         war_standing_node.war_trophies_change = war_trophies_change
 
         war_standing_node.warred_in.add(clan_node)
-        war_standing_node.results_from.add(war_node)
+        war_standing_node.results_from.add(
+            war_node, properties={"standing": standing})
 
         graph.push(war_standing_node)
 

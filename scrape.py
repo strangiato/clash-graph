@@ -72,7 +72,7 @@ def update_clan_warlog(graph, base_url, headers, tag, clans):
             war_season_node
         )
 
-        for clan_results in war["standings"]:
+        for standing, clan_results in enumerate(war["standings"], start=1):
 
             if clan_results["tag"] not in clans:
                 clans.append(clan_results["tag"])
@@ -91,6 +91,7 @@ def update_clan_warlog(graph, base_url, headers, tag, clans):
                 clan_results["crowns"],
                 clan_results["warTrophies"],
                 clan_results["warTrophiesChange"],
+                standing,
                 clan_node,
                 war_node
             )
@@ -203,7 +204,7 @@ if __name__ == "__main__":
         # this is not really a depth tracker
         # instead it just looks at the number of clans scanned
         # would like to eventually look at this for true depth tracking
-        if depth == 5:
+        if depth == 1:
             break
 
     for player in players:
