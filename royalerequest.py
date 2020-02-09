@@ -117,4 +117,4 @@ if __name__ == "__main__":
     player = get_player(base_url, headers, "#80VUU9PLP")
     print(player["tag"])
 
-    #cards = get_cards(base_url, headers)
+    cards = get_cards(base_url, headers)
