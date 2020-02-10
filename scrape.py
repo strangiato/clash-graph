@@ -191,7 +191,7 @@ if __name__ == "__main__":
     BASE_URL = royalerequest.get_base_url()
     HEADERS = royalerequest.get_headers()
 
-    clans = ["VV80RJY"]
+    clans = ["#VV80RJY"]
     players = []
 
     update_cards(graph, BASE_URL, HEADERS)
