@@ -99,6 +99,13 @@ def get_warlog(base_url, headers, tag):
 def __get_data(url, headers):
     response = requests.request("GET", url, headers=headers)
 
+    logging_message = "{} - {}".format(url, response.status_code)
+
+    if response.status_code < 400:
+        logger.info(logging_message)
+    else:
+        logger.error(logging_message)
+
     return response.json()
 
 
