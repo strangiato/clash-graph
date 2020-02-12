@@ -5,15 +5,11 @@ import createnodes
 def update_cards(graph, base_url, headers):
     cards = royalerequest.get_cards(base_url, headers)
 
-    for card in cards:
+    for card in cards["items"]:
         createnodes.create_card(
             graph,
-            card["key"],
             card["name"],
-            card["elixir"],
-            card["type"],
-            card["rarity"],
-            card["description"]
+            max_level=card["maxLevel"]
         )
 
 
@@ -196,17 +192,17 @@ if __name__ == "__main__":
 
     update_cards(graph, BASE_URL, HEADERS)
 
-    for depth, clan in enumerate(clans, start=1):
-        clan_members = update_clan(graph, BASE_URL, HEADERS, clan)
-        players.extend(clan_members)
+    # for depth, clan in enumerate(clans, start=1):
+    #     clan_members = update_clan(graph, BASE_URL, HEADERS, clan)
+    #     players.extend(clan_members)
 
-        clans = update_clan_warlog(graph, BASE_URL, HEADERS, clan, clans)
+    #     clans = update_clan_warlog(graph, BASE_URL, HEADERS, clan, clans)
 
-        # this is not really a depth tracker
-        # instead it just looks at the number of clans scanned
-        # would like to eventually look at this for true depth tracking
-        if depth == 1:
-            break
+    #     # this is not really a depth tracker
+    #     # instead it just looks at the number of clans scanned
+    #     # would like to eventually look at this for true depth tracking
+    #     if depth == 1:
+    #         break
 
-    for player in players:
-        update_battles(graph, BASE_URL, HEADERS, player)
+    # for player in players:
+    #     update_battles(graph, BASE_URL, HEADERS, player)

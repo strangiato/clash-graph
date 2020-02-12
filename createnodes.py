@@ -7,17 +7,25 @@ def get_graph():
     return Graph(host="localhost", auth=("neo4j", "test123"))
 
 
-def create_card(graph, key, name, elixir, card_type, rarity, description):
-    card_node = Card.match(graph, key).first()
+def create_card(graph, name, max_level=None, rarity=None):
+    card_node = Card.match(graph, name).first()
 
     if card_node is None:
         card_node = Card()
-        card_node.key = key
+        # card_node.key = key
         card_node.name = name
-        card_node.elixir = elixir
-        card_node.card_type = card_type
+
+        if rarity is None:
+            if max_level == 13:
+                rarity = 'Common'
+            elif max_level == 11:
+                rarity = 'Rare'
+            elif max_level == 8:
+                rarity = 'Epic'
+            elif max_level == 5:
+                rarity = 'Legendary'
+
         card_node.rarity = rarity
-        card_node.description = description
         graph.push(card_node)
 
     return card_node

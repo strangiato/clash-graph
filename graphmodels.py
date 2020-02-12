@@ -4,14 +4,14 @@ from statistics import mean
 
 
 class Card(GraphObject):
-    __primarykey__ = "key"
+    __primarykey__ = "name"
 
-    key = Property()
+    # key = Property() # not available in clash api
     name = Property()
-    elixir = Property()
-    card_type = Property()
-    rarity = Property()
-    description = Property()
+    elixir = Property()  # not available in clash api
+    card_type = Property()  # not available in clash api
+    rarity = Property()  # not available in clash api
+    description = Property()  # not available in clash api
 
 
 class Player(GraphObject):
