@@ -1,5 +1,6 @@
 .vscode/
 neo4j/
+api_key.sh
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
