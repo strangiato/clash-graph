@@ -1,6 +1,24 @@
 import royalerequest
 import createnodes
 
+import logging
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
+
+formatter = logging.Formatter(
+    '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+
+file_handler = logging.FileHandler('logs/scrape.log')
+file_handler.setFormatter(formatter)
+
+stream_handler = logging.StreamHandler()
+stream_handler.setFormatter(formatter)
+
+logger.addHandler(file_handler)
+logger.addHandler(stream_handler)
+
 
 def update_cards(graph, base_url, headers):
     cards = royalerequest.get_cards(base_url, headers)
@@ -9,7 +27,7 @@ def update_cards(graph, base_url, headers):
         createnodes.create_card(
             graph,
             card["name"],
-            max_level=card["maxLevel"]
+            card["maxLevel"]
         )
 
 
@@ -22,20 +40,21 @@ def update_clan(graph, base_url, headers, tag):
         clan["name"],
         clan["description"],
         clan["type"],
-        clan["score"],
-        clan["warTrophies"],
-        clan["requiredScore"],
-        clan["donations"]
+        clan["clanScore"],
+        clan["clanWarTrophies"],
+        clan["requiredTrophies"],
+        clan["donationsPerWeek"]
     )
 
     clanMembers = []
 
-    for player in clan["members"]:
+    for player in clan["memberList"]:
         createnodes.create_player(
             graph,
             player["tag"],
             player["name"],
             player["trophies"],
+            player["expLevel"],
             player["role"],
             clan_node
         )
@@ -55,38 +74,42 @@ def update_clan_warlog(graph, base_url, headers, tag, clans):
 
     primary_war_standing_node = None
 
-    for war in warlog:
+    for war in warlog["items"]:
+
+        logger.debug(war)
 
         war_season_node = createnodes.create_war_season(
             graph,
-            war["seasonNumber"]
+            war["seasonId"]
         )
+
+        logger.debug(war_season_node)
 
         war_node = createnodes.create_war(
             graph,
-            war["warEndTime"],
+            war["createdDate"],
             war_season_node
         )
 
         for standing, clan_results in enumerate(war["standings"], start=1):
 
-            if clan_results["tag"] not in clans:
-                clans.append(clan_results["tag"])
+            # add the clan to the list of clans to scrape
+            if clan_results["clan"]["tag"] not in clans:
+                clans.append(clan_results["clan"]["tag"])
 
             clan_node = createnodes.create_clan(
                 graph,
-                clan_results["tag"],
-                clan_results["name"]
+                clan_results["clan"]["tag"],
+                clan_results["clan"]["name"]
             )
 
             war_standing_node = createnodes.create_war_standing(
                 graph,
-                clan_results["participants"],
-                clan_results["battlesPlayed"],
-                clan_results["wins"],
-                clan_results["crowns"],
-                clan_results["warTrophies"],
-                clan_results["warTrophiesChange"],
+                clan_results["clan"]["participants"],
+                clan_results["clan"]["battlesPlayed"],
+                clan_results["clan"]["wins"],
+                clan_results["clan"]["crowns"],
+                clan_results["trophyChange"],
                 standing,
                 clan_node,
                 war_node
@@ -105,9 +128,8 @@ def update_clan_warlog(graph, base_url, headers, tag, clans):
             createnodes.create_war_participant(
                 graph,
                 participant["cardsEarned"],
-                participant["battleCount"],
+                participant["numberOfBattles"],
                 participant["battlesPlayed"],
-                participant["battlesMissed"],
                 participant["wins"],
                 participant["collectionDayBattlesPlayed"],
                 player_node,
@@ -128,7 +150,7 @@ def update_battles(graph, base_url, headers, tag):
 
     for battle in battles:
         # skip game modes because they use two decks for each player
-        if battle["mode"]["name"] in MODES:
+        if battle["gameMode"]["name"] in MODES:
             continue
 
         team_node = update_team(graph, battle["team"])
@@ -137,10 +159,11 @@ def update_battles(graph, base_url, headers, tag):
         createnodes.create_battle(
             graph,
             battle["type"],
-            battle["utcTime"],
+            battle["battleTime"],
             battle["isLadderTournament"],
-            battle["mode"]["name"],
-            battle["winner"],
+            battle["gameMode"]["name"],
+            battle["team"][0]["crowns"],
+            battle["opponent"][0]["crowns"],
             team_node,
             opponent_node
         )
@@ -154,7 +177,7 @@ def update_team(graph, team):
 
         clan_node = None
         # get the clan if they have one
-        if player["clan"] is not None:
+        if "clan" in player:
             clan_node = createnodes.create_clan(
                 graph,
                 player["clan"]["tag"],
@@ -170,7 +193,7 @@ def update_team(graph, team):
 
         deck_list.append(createnodes.create_deck(
             graph,
-            player["deck"]
+            player["cards"]
         ))
 
     team_node = createnodes.create_team(
@@ -192,17 +215,17 @@ if __name__ == "__main__":
 
     update_cards(graph, BASE_URL, HEADERS)
 
-    # for depth, clan in enumerate(clans, start=1):
-    #     clan_members = update_clan(graph, BASE_URL, HEADERS, clan)
-    #     players.extend(clan_members)
+    for depth, clan in enumerate(clans, start=1):
+        clan_members = update_clan(graph, BASE_URL, HEADERS, clan)
+        players.extend(clan_members)
 
-    #     clans = update_clan_warlog(graph, BASE_URL, HEADERS, clan, clans)
+        clans = update_clan_warlog(graph, BASE_URL, HEADERS, clan, clans)
 
-    #     # this is not really a depth tracker
-    #     # instead it just looks at the number of clans scanned
-    #     # would like to eventually look at this for true depth tracking
-    #     if depth == 1:
-    #         break
+        # this is not really a depth tracker
+        # instead it just looks at the number of clans scanned
+        # would like to eventually look at this for true depth tracking
+        if depth == 1:
+            break
 
-    # for player in players:
-    #     update_battles(graph, BASE_URL, HEADERS, player)
+    for player in players:
+        update_battles(graph, BASE_URL, HEADERS, player)

@@ -2,30 +2,35 @@ from py2neo import Graph
 from graphmodels import Clan, Player, Card, Deck, Battle, Team, War_Season, War, War_Standing, War_Participant
 from graphmodels import get_hash
 
+import logging
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
+
+formatter = logging.Formatter(
+    '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+
+file_handler = logging.FileHandler('logs/createnodes.log')
+file_handler.setFormatter(formatter)
+
+stream_handler = logging.StreamHandler()
+stream_handler.setFormatter(formatter)
+
+logger.addHandler(file_handler)
+logger.addHandler(stream_handler)
+
 
 def get_graph():
     return Graph(host="localhost", auth=("neo4j", "test123"))
 
 
-def create_card(graph, name, max_level=None, rarity=None):
+def create_card(graph, name, max_level):
     card_node = Card.match(graph, name).first()
 
     if card_node is None:
-        card_node = Card()
-        # card_node.key = key
-        card_node.name = name
+        card_node = Card(name, max_level)
 
-        if rarity is None:
-            if max_level == 13:
-                rarity = 'Common'
-            elif max_level == 11:
-                rarity = 'Rare'
-            elif max_level == 8:
-                rarity = 'Epic'
-            elif max_level == 5:
-                rarity = 'Legendary'
-
-        card_node.rarity = rarity
         graph.push(card_node)
 
     return card_node
@@ -51,7 +56,7 @@ def create_clan(graph, tag, name=None, description=None, clan_type=None, score=N
     return clan_node
 
 
-def create_player(graph, tag, name, trophies=None, clan_role=None, clan_node=None):
+def create_player(graph, tag, name, trophies=None, level=None, clan_role=None, clan_node=None):
     player_node = Player.match(graph, tag).first()
 
     if player_node is None:
@@ -59,6 +64,7 @@ def create_player(graph, tag, name, trophies=None, clan_role=None, clan_node=Non
         player_node.tag = tag
         player_node.name = name
         player_node.trophies = trophies
+        player_node.level = level
         player_node.clan_role = clan_role
 
         # does this need to be outside of the if block
@@ -82,10 +88,10 @@ def create_deck(graph, deck):
     if deck_node_search is None:
 
         for card in deck:
-            node_card = Card.match(graph, card["key"]).first()
+            node_card = Card.match(graph, card["name"]).first()
             deck_node.contains.add(node_card)
 
-        deck_node.calculate_exilir(deck)
+        # deck_node.calculate_exilir(deck)
 
         graph.merge(deck_node)
     else:
@@ -94,7 +100,7 @@ def create_deck(graph, deck):
     return deck_node
 
 
-def create_battle(graph, battle_type, utc_time, is_ladder_tournament, battle_mode, crown_result, team_node, opponent_node):
+def create_battle(graph, battle_type, utc_time, is_ladder_tournament, battle_mode, team_crowns, opponent_crowns, team_node, opponent_node):
 
     # validate objects are the correct types
     assert(isinstance(team_node, Team))
@@ -117,15 +123,13 @@ def create_battle(graph, battle_type, utc_time, is_ladder_tournament, battle_mod
         battle_node.battle_mode = battle_mode
 
         battle_node.battled_in.add(team_node, properties={
-            "crown_result": crown_result,
-            "result": __battle_result(crown_result)
+            "crown_result": team_crowns,
+            "result": __battle_result(team_crowns, opponent_crowns)
         })
 
-        opponent_crown_result = -1 * crown_result
-
         battle_node.battled_in.add(opponent_node, properties={
-            "crown_result": opponent_crown_result,
-            "result": __battle_result(opponent_crown_result)
+            "crown_result": team_crowns,
+            "result": __battle_result(opponent_crowns, team_crowns)
         })
 
         graph.push(battle_node)
@@ -135,11 +139,11 @@ def create_battle(graph, battle_type, utc_time, is_ladder_tournament, battle_mod
     return battle_node
 
 
-def __battle_result(crown_count):
+def __battle_result(team_crowns, opponent_crowns):
 
-    if crown_count < 0:
+    if team_crowns < opponent_crowns:
         result = "loss"
-    elif crown_count == 0:
+    elif team_crowns == opponent_crowns:
         result = "draw"
     else:
         result = "win"
@@ -180,15 +184,20 @@ def create_war_season(graph, war_season):
     return season_node
 
 
-def create_war(graph, war_end_time, war_season_node):
+def create_war(graph, war_datetime, war_season_node):
     assert(isinstance(war_season_node, War_Season))
 
-    war_node = War.match(graph, war_end_time).first()
+    logger.debug(war_season_node)
+    logger.debug(war_datetime)
+
+    war_node = War.match(graph, war_datetime).first()
+
+    logger.debug(war_node)
 
     if war_node is None:
         war_node = War()
 
-        war_node.war_end_time = war_end_time
+        war_node.war_datetime = war_datetime
 
         war_node.part_of_season.add(war_season_node)
 
@@ -207,7 +216,7 @@ def get_war_standing(graph, clan_node, war_node):
     return war_standing_node, war_standing_hash
 
 
-def create_war_standing(graph, participants, battles_played, wins, crowns, war_tophies, war_trophies_change, standing, clan_node, war_node):
+def create_war_standing(graph, participants, battles_played, wins, crowns, war_trophies_change, standing, clan_node, war_node):
 
     war_standing_node, war_standing_hash = get_war_standing(
         graph, clan_node,
@@ -222,7 +231,6 @@ def create_war_standing(graph, participants, battles_played, wins, crowns, war_t
         war_standing_node.battles_played = battles_played
         war_standing_node.wins = wins
         war_standing_node.crowns = crowns
-        war_standing_node.war_tophies = war_tophies
         war_standing_node.war_trophies_change = war_trophies_change
 
         war_standing_node.warred_in.add(clan_node)
@@ -247,7 +255,7 @@ def get_war_participant(graph, player_node, war_standing_node):
     return war_participant_node, war_participant_hash
 
 
-def create_war_participant(graph, cards_earned, battle_count, battles_played, battles_missed, wins, collection_day_battles_played, player_node, war_standing_node):
+def create_war_participant(graph, cards_earned, war_battles_count, war_battles_played, war_battles_wins, collection_battles_played, player_node, war_standing_node):
 
     war_participant_node, war_participant_hash = get_war_participant(
         graph,
@@ -260,11 +268,10 @@ def create_war_participant(graph, cards_earned, battle_count, battles_played, ba
 
         war_participant_node.hash = war_participant_hash
         war_participant_node.cards_earned = cards_earned
-        war_participant_node.battle_count = battle_count
-        war_participant_node.battles_played = battles_played
-        war_participant_node.battles_missed = battles_missed
-        war_participant_node.wins = wins
-        war_participant_node.collection_day_battles_played = collection_day_battles_played
+        war_participant_node.war_battles_count = war_battles_count
+        war_participant_node.war_battles_played = war_battles_played
+        war_participant_node.war_battles_wins = war_battles_wins
+        war_participant_node.collection_battles_played = collection_battles_played
 
         war_participant_node.battled_in.add(player_node)
         war_participant_node.resulted_in.add(war_standing_node)

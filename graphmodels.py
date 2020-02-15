@@ -13,6 +13,22 @@ class Card(GraphObject):
     rarity = Property()  # not available in clash api
     description = Property()  # not available in clash api
 
+    def __init__(self, name, max_level):
+        self.name = name
+        self.rarity = self.get_rarity(max_level)
+
+    def get_rarity(self, max_level):
+        if max_level == 13:
+            rarity = 'Common'
+        elif max_level == 11:
+            rarity = 'Rare'
+        elif max_level == 8:
+            rarity = 'Epic'
+        elif max_level == 5:
+            rarity = 'Legendary'
+
+        return rarity
+
 
 class Player(GraphObject):
     __primarykey__ = "tag"
@@ -21,6 +37,7 @@ class Player(GraphObject):
     name = Property()
     clan_role = Property()
     trophies = Property()
+    level = Property()
     donations = Property()
     donations_rceived = Property()
     donations_delta = Property()
@@ -64,7 +81,7 @@ class Deck(GraphObject):
 
         hash_sum = 0
         for card in deck:
-            card_hash = hashlib.sha1(card["key"].encode('utf-8')).hexdigest()
+            card_hash = hashlib.sha1(card["name"].encode('utf-8')).hexdigest()
             hash_sum += int(card_hash, 16)
 
         hash = hex(hash_sum)
@@ -149,9 +166,9 @@ class War_Season(GraphObject):
 
 
 class War(GraphObject):
-    __primarykey__ = "war_end_time"
+    __primarykey__ = "war_datetime"
 
-    war_end_time = Property()
+    war_datetime = Property()
 
     battled_in = RelatedFrom("War_Standing")
     part_of_season = RelatedTo("War_Season")
@@ -173,17 +190,38 @@ class War_Standing(GraphObject):
     results_from = RelatedTo("War")
 
 
-class War_Participant(GraphObject):
+class Hash_Graph_Object(GraphObject):
     __primarykey__ = "hash"
 
     hash = Property()
-    cards_earned = Property()
-    battle_count = Property()
-    battles_played = Property()
-    battles_missed = Property()
-    wins = Property()
-    collection_day_battles_played = Property()
 
+    def get_hash(self, hash_array):
+
+        hashSum = 0
+        for item in hash_array:
+            itemHash = hashlib.sha1(str(item).encode('utf-8')).hexdigest()
+            hashSum += int(itemHash, 16)
+
+        hash = hex(hashSum)
+
+        return hash
+
+
+class War_Participant(GraphObject):
+
+    # properties set directly
+    cards_earned = Property()
+    war_battles_count = Property()
+    war_battles_played = Property()
+    war_battles_wins = Property()
+    collection_battles_played = Property()
+
+    # properties calculated
+    # not being used today
+    war_battles_missed = Property()
+    collection_battles_missed = Property()
+
+    # relationships
     battled_in = RelatedFrom("Player")
     resulted_in = RelatedTo("War_Standing")
 
