@@ -1,6 +1,7 @@
 import royalerequest
 import createnodes
 
+import time
 import logging
 
 logger = logging.getLogger(__name__)
@@ -206,6 +207,9 @@ def update_team(graph, team):
 
 
 if __name__ == "__main__":
+
+    start_time = time.time()
+
     graph = createnodes.get_graph()
     BASE_URL = royalerequest.get_base_url()
     HEADERS = royalerequest.get_headers()
@@ -229,3 +233,5 @@ if __name__ == "__main__":
 
     for player in players:
         update_battles(graph, BASE_URL, HEADERS, player)
+
+    logger.info("run time - {}".format(time.time() - start_time))
