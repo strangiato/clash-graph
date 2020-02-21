@@ -1,7 +1,7 @@
 import royalerequest
 import createnodes
 
-import time
+from datetime import datetime
 import logging
 
 logger = logging.getLogger(__name__)
@@ -208,7 +208,7 @@ def update_team(graph, team):
 
 if __name__ == "__main__":
 
-    start_time = time.time()
+    start_time = datetime.now()
 
     graph = createnodes.get_graph()
     BASE_URL = royalerequest.get_base_url()
@@ -228,10 +228,10 @@ if __name__ == "__main__":
         # this is not really a depth tracker
         # instead it just looks at the number of clans scanned
         # would like to eventually look at this for true depth tracking
-        if depth == 1:
+        if depth == 50:
             break
 
     for player in players:
         update_battles(graph, BASE_URL, HEADERS, player)
 
-    logger.info("run time - {}".format(time.time() - start_time))
+    logger.info("run time - {}".format(datetime.now() - start_time))
