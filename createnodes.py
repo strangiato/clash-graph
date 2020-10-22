@@ -1,5 +1,16 @@
 from py2neo import Graph
-from graphmodels import Clan, Player, Card, Deck, Battle, Team, War_Season, War, War_Standing, War_Participant
+from graphmodels import (
+    Clan,
+    Player,
+    Card,
+    Deck,
+    Battle,
+    Team,
+    War_Season,
+    War,
+    War_Standing,
+    War_Participant,
+)
 from graphmodels import get_hash
 
 import logging
@@ -7,11 +18,9 @@ import logging
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
-formatter = logging.Formatter(
-    '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
+formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 
-file_handler = logging.FileHandler('logs/createnodes.log')
+file_handler = logging.FileHandler("logs/createnodes.log")
 file_handler.setFormatter(formatter)
 
 stream_handler = logging.StreamHandler()
@@ -36,7 +45,18 @@ def create_card(graph, name, max_level):
     return card_node
 
 
-def create_clan(graph, tag, name=None, description=None, clan_type=None, score=None, war_trophies=None, member_count=None, required_score=None, donations=None):
+def create_clan(
+    graph,
+    tag,
+    name=None,
+    description=None,
+    clan_type=None,
+    score=None,
+    war_trophies=None,
+    member_count=None,
+    required_score=None,
+    donations=None,
+):
     clan_node = Clan.match(graph, tag).first()
 
     if clan_node is None:
@@ -56,7 +76,9 @@ def create_clan(graph, tag, name=None, description=None, clan_type=None, score=N
     return clan_node
 
 
-def create_player(graph, tag, name, trophies=None, level=None, clan_role=None, clan_node=None):
+def create_player(
+    graph, tag, name, trophies=None, level=None, clan_role=None, clan_node=None
+):
     player_node = Player.match(graph, tag).first()
 
     if player_node is None:
@@ -70,7 +92,7 @@ def create_player(graph, tag, name, trophies=None, level=None, clan_role=None, c
         # does this need to be outside of the if block
         # possible issue when player is created then joins clan
         if clan_node is not None:
-            assert(isinstance(clan_node, Clan))
+            assert isinstance(clan_node, Clan)
             player_node.member_of.add(clan_node)
 
         graph.push(player_node)
@@ -100,11 +122,21 @@ def create_deck(graph, deck):
     return deck_node
 
 
-def create_battle(graph, battle_type, utc_time, is_ladder_tournament, battle_mode, team_crowns, opponent_crowns, team_node, opponent_node):
+def create_battle(
+    graph,
+    battle_type,
+    utc_time,
+    is_ladder_tournament,
+    battle_mode,
+    team_crowns,
+    opponent_crowns,
+    team_node,
+    opponent_node,
+):
 
     # validate objects are the correct types
-    assert(isinstance(team_node, Team))
-    assert(isinstance(opponent_node, Team))
+    assert isinstance(team_node, Team)
+    assert isinstance(opponent_node, Team)
 
     battle_node = Battle()
     battle_hash = battle_node.setHash(utc_time, team_node, opponent_node)
@@ -122,15 +154,21 @@ def create_battle(graph, battle_type, utc_time, is_ladder_tournament, battle_mod
         battle_node.is_ladder_tournament = is_ladder_tournament
         battle_node.battle_mode = battle_mode
 
-        battle_node.battled_in.add(team_node, properties={
-            "crown_result": team_crowns,
-            "result": __battle_result(team_crowns, opponent_crowns)
-        })
+        battle_node.battled_in.add(
+            team_node,
+            properties={
+                "crown_result": team_crowns,
+                "result": __battle_result(team_crowns, opponent_crowns),
+            },
+        )
 
-        battle_node.battled_in.add(opponent_node, properties={
-            "crown_result": team_crowns,
-            "result": __battle_result(opponent_crowns, team_crowns)
-        })
+        battle_node.battled_in.add(
+            opponent_node,
+            properties={
+                "crown_result": team_crowns,
+                "result": __battle_result(opponent_crowns, team_crowns),
+            },
+        )
 
         graph.push(battle_node)
     else:
@@ -154,14 +192,14 @@ def __battle_result(team_crowns, opponent_crowns):
 def create_team(graph, team, decks):
 
     # validate that the same number of teammembers and decks were provided
-    assert(len(team) == len(decks))
+    assert len(team) == len(decks)
 
     team_node = Team()
 
     for player, deck in zip(team, decks):
         # validate the objects are the correct types
-        assert(isinstance(player, Player))
-        assert(isinstance(deck, Deck))
+        assert isinstance(player, Player)
+        assert isinstance(deck, Deck)
 
         team_node.played_in.add(player)
         team_node.used_deck.add(deck)
@@ -185,7 +223,7 @@ def create_war_season(graph, war_season):
 
 
 def create_war(graph, war_datetime, war_season_node):
-    assert(isinstance(war_season_node, War_Season))
+    assert isinstance(war_season_node, War_Season)
 
     logger.debug(war_season_node)
     logger.debug(war_datetime)
@@ -207,8 +245,8 @@ def create_war(graph, war_datetime, war_season_node):
 
 
 def get_war_standing(graph, clan_node, war_node):
-    assert(isinstance(clan_node, Clan))
-    assert(isinstance(war_node, War))
+    assert isinstance(clan_node, Clan)
+    assert isinstance(war_node, War)
 
     war_standing_hash = get_hash([clan_node, war_node])
     war_standing_node = War_Standing.match(graph, war_standing_hash).first()
@@ -216,12 +254,19 @@ def get_war_standing(graph, clan_node, war_node):
     return war_standing_node, war_standing_hash
 
 
-def create_war_standing(graph, participants, battles_played, wins, crowns, war_trophies_change, standing, clan_node, war_node):
+def create_war_standing(
+    graph,
+    participants,
+    battles_played,
+    wins,
+    crowns,
+    war_trophies_change,
+    standing,
+    clan_node,
+    war_node,
+):
 
-    war_standing_node, war_standing_hash = get_war_standing(
-        graph, clan_node,
-        war_node
-    )
+    war_standing_node, war_standing_hash = get_war_standing(graph, clan_node, war_node)
 
     if war_standing_node is None:
         war_standing_node = War_Standing()
@@ -234,8 +279,7 @@ def create_war_standing(graph, participants, battles_played, wins, crowns, war_t
         war_standing_node.war_trophies_change = war_trophies_change
 
         war_standing_node.warred_in.add(clan_node)
-        war_standing_node.results_from.add(
-            war_node, properties={"standing": standing})
+        war_standing_node.results_from.add(war_node, properties={"standing": standing})
 
         graph.push(war_standing_node)
 
@@ -243,24 +287,28 @@ def create_war_standing(graph, participants, battles_played, wins, crowns, war_t
 
 
 def get_war_participant(graph, player_node, war_standing_node):
-    assert(isinstance(player_node, Player))
-    assert(isinstance(war_standing_node, War_Standing))
+    assert isinstance(player_node, Player)
+    assert isinstance(war_standing_node, War_Standing)
 
     war_participant_hash = get_hash([player_node, war_standing_node])
-    war_participant_node = War_Participant.match(
-        graph,
-        war_participant_hash
-    ).first()
+    war_participant_node = War_Participant.match(graph, war_participant_hash).first()
 
     return war_participant_node, war_participant_hash
 
 
-def create_war_participant(graph, cards_earned, war_battles_count, war_battles_played, war_battles_wins, collection_battles_played, player_node, war_standing_node):
+def create_war_participant(
+    graph,
+    cards_earned,
+    war_battles_count,
+    war_battles_played,
+    war_battles_wins,
+    collection_battles_played,
+    player_node,
+    war_standing_node,
+):
 
     war_participant_node, war_participant_hash = get_war_participant(
-        graph,
-        player_node,
-        war_standing_node
+        graph, player_node, war_standing_node
     )
 
     if war_participant_node is None:

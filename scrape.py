@@ -7,11 +7,9 @@ import logging
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
-formatter = logging.Formatter(
-    '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
+formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 
-file_handler = logging.FileHandler('logs/scrape.log')
+file_handler = logging.FileHandler("logs/scrape.log")
 file_handler.setFormatter(formatter)
 
 stream_handler = logging.StreamHandler()
@@ -25,11 +23,7 @@ def update_cards(graph, base_url, headers):
     cards = royalerequest.get_cards(base_url, headers)
 
     for card in cards["items"]:
-        createnodes.create_card(
-            graph,
-            card["name"],
-            card["maxLevel"]
-        )
+        createnodes.create_card(graph, card["name"], card["maxLevel"])
 
 
 def update_clan(graph, base_url, headers, tag):
@@ -44,7 +38,7 @@ def update_clan(graph, base_url, headers, tag):
         clan["clanScore"],
         clan["clanWarTrophies"],
         clan["requiredTrophies"],
-        clan["donationsPerWeek"]
+        clan["donationsPerWeek"],
     )
 
     clanMembers = []
@@ -57,7 +51,7 @@ def update_clan(graph, base_url, headers, tag):
             player["trophies"],
             player["expLevel"],
             player["role"],
-            clan_node
+            clan_node,
         )
 
         clanMembers.append(player["tag"])
@@ -68,10 +62,7 @@ def update_clan(graph, base_url, headers, tag):
 def update_clan_warlog(graph, base_url, headers, tag, clans):
     warlog = royalerequest.get_warlog(base_url, headers, tag)
 
-    primary_clan_node = createnodes.create_clan(
-        graph,
-        tag
-    )
+    primary_clan_node = createnodes.create_clan(graph, tag)
 
     primary_war_standing_node = None
 
@@ -79,18 +70,11 @@ def update_clan_warlog(graph, base_url, headers, tag, clans):
 
         logger.debug(war)
 
-        war_season_node = createnodes.create_war_season(
-            graph,
-            war["seasonId"]
-        )
+        war_season_node = createnodes.create_war_season(graph, war["seasonId"])
 
         logger.debug(war_season_node)
 
-        war_node = createnodes.create_war(
-            graph,
-            war["createdDate"],
-            war_season_node
-        )
+        war_node = createnodes.create_war(graph, war["createdDate"], war_season_node)
 
         for standing, clan_results in enumerate(war["standings"], start=1):
 
@@ -99,9 +83,7 @@ def update_clan_warlog(graph, base_url, headers, tag, clans):
                 clans.append(clan_results["clan"]["tag"])
 
             clan_node = createnodes.create_clan(
-                graph,
-                clan_results["clan"]["tag"],
-                clan_results["clan"]["name"]
+                graph, clan_results["clan"]["tag"], clan_results["clan"]["name"]
             )
 
             war_standing_node = createnodes.create_war_standing(
@@ -113,7 +95,7 @@ def update_clan_warlog(graph, base_url, headers, tag, clans):
                 clan_results["trophyChange"],
                 standing,
                 clan_node,
-                war_node
+                war_node,
             )
 
             if clan_node == primary_clan_node:
@@ -121,9 +103,7 @@ def update_clan_warlog(graph, base_url, headers, tag, clans):
 
         for participant in war["participants"]:
             player_node = createnodes.create_player(
-                graph,
-                participant["tag"],
-                participant["name"]
+                graph, participant["tag"], participant["name"]
             )
 
             createnodes.create_war_participant(
@@ -134,7 +114,7 @@ def update_clan_warlog(graph, base_url, headers, tag, clans):
                 participant["wins"],
                 participant["collectionDayBattlesPlayed"],
                 player_node,
-                primary_war_standing_node
+                primary_war_standing_node,
             )
     return clans
 
@@ -146,7 +126,7 @@ def update_battles(graph, base_url, headers, tag):
         "Touchdown_MegaDeck_Challenge",
         "Touchdown_MegaDeck_Ladder",
         "DoubleDeck_Tournament",
-        "DoubleDeck_Friendly"
+        "DoubleDeck_Friendly",
     ]
 
     for battle in battles:
@@ -166,7 +146,7 @@ def update_battles(graph, base_url, headers, tag):
             battle["team"][0]["crowns"],
             battle["opponent"][0]["crowns"],
             team_node,
-            opponent_node
+            opponent_node,
         )
 
 
@@ -180,28 +160,18 @@ def update_team(graph, team):
         # get the clan if they have one
         if "clan" in player:
             clan_node = createnodes.create_clan(
-                graph,
-                player["clan"]["tag"],
-                player["clan"]["name"]
+                graph, player["clan"]["tag"], player["clan"]["name"]
             )
 
-        team_list.append(createnodes.create_player(
-            graph,
-            player["tag"],
-            player["name"],
-            clan_node=clan_node
-        ))
+        team_list.append(
+            createnodes.create_player(
+                graph, player["tag"], player["name"], clan_node=clan_node
+            )
+        )
 
-        deck_list.append(createnodes.create_deck(
-            graph,
-            player["cards"]
-        ))
+        deck_list.append(createnodes.create_deck(graph, player["cards"]))
 
-    team_node = createnodes.create_team(
-        graph,
-        team_list,
-        deck_list
-    )
+    team_node = createnodes.create_team(graph, team_list, deck_list)
 
     return team_node
 

@@ -1,6 +1,5 @@
 import os
 import requests
-import json
 import urllib.parse
 
 import logging
@@ -9,11 +8,9 @@ import logging
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
-formatter = logging.Formatter(
-    '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
+formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 
-file_handler = logging.FileHandler('logs/royalerequest.log')
+file_handler = logging.FileHandler("logs/royalerequest.log")
 file_handler.setFormatter(formatter)
 
 stream_handler = logging.StreamHandler()
@@ -30,11 +27,9 @@ def get_base_url():
 
 def get_headers():
 
-    API_KEY = os.getenv('CLASH_API')
+    API_KEY = os.getenv("CLASH_API")
 
-    HEADERS = {
-        'Authorization': "Bearer {API_KEY}".format(API_KEY=API_KEY)
-    }
+    HEADERS = {"Authorization": "Bearer {API_KEY}".format(API_KEY=API_KEY)}
     return HEADERS
 
 
@@ -42,8 +37,7 @@ def get_clan(base_url, headers, tag):
     logger.info("Get Clan: {}".format(tag))
     parsed_tag = __url_parse(tag)
 
-    request_url = '{base_url}/clans/{tag}'.format(
-        base_url=base_url, tag=parsed_tag)
+    request_url = "{base_url}/clans/{tag}".format(base_url=base_url, tag=parsed_tag)
 
     return __get_data(request_url, headers)
 
@@ -51,7 +45,7 @@ def get_clan(base_url, headers, tag):
 def get_cards(base_url, headers):
     logger.info("Get Cards")
 
-    request_url = '{base_url}/cards'.format(base_url=base_url)
+    request_url = "{base_url}/cards".format(base_url=base_url)
 
     return __get_data(request_url, headers)
 
@@ -60,8 +54,7 @@ def get_player(base_url, headers, tag):
     logger.info("Get Player: {}".format(tag))
     parsed_tag = __url_parse(tag)
 
-    request_url = '{base_url}/players/{tag}'.format(
-        base_url=base_url, tag=parsed_tag)
+    request_url = "{base_url}/players/{tag}".format(base_url=base_url, tag=parsed_tag)
 
     return __get_data(request_url, headers)
 
@@ -70,8 +63,9 @@ def get_battles(base_url, headers, tag):
     logger.info("Get Player Battles: {}".format(tag))
     parsed_tag = __url_parse(tag)
 
-    request_url = '{base_url}/players/{tag}/battlelog'.format(
-        base_url=base_url, tag=parsed_tag)
+    request_url = "{base_url}/players/{tag}/battlelog".format(
+        base_url=base_url, tag=parsed_tag
+    )
 
     return __get_data(request_url, headers)
 
@@ -80,8 +74,9 @@ def get_war(base_url, headers, tag):
     logger.info("Get Clan Current War: {}".format(tag))
     parsed_tag = __url_parse(tag)
 
-    request_url = '{base_url}/clan/{tag}/currentwar'.format(
-        base_url=base_url, tag=parsed_tag)
+    request_url = "{base_url}/clan/{tag}/currentwar".format(
+        base_url=base_url, tag=parsed_tag
+    )
 
     return __get_data(request_url, headers)
 
@@ -90,8 +85,9 @@ def get_warlog(base_url, headers, tag):
     logger.info("Get Clan Warlog: {}".format(tag))
     parsed_tag = __url_parse(tag)
 
-    request_url = '{base_url}/clans/{tag}/warlog'.format(
-        base_url=base_url, tag=parsed_tag)
+    request_url = "{base_url}/clans/{tag}/warlog".format(
+        base_url=base_url, tag=parsed_tag
+    )
 
     return __get_data(request_url, headers)
 

@@ -19,13 +19,13 @@ class Card(GraphObject):
 
     def get_rarity(self, max_level):
         if max_level == 13:
-            rarity = 'Common'
+            rarity = "Common"
         elif max_level == 11:
-            rarity = 'Rare'
+            rarity = "Rare"
         elif max_level == 8:
-            rarity = 'Epic'
+            rarity = "Epic"
         elif max_level == 5:
-            rarity = 'Legendary'
+            rarity = "Legendary"
 
         return rarity
 
@@ -81,7 +81,7 @@ class Deck(GraphObject):
 
         hash_sum = 0
         for card in deck:
-            card_hash = hashlib.sha1(card["name"].encode('utf-8')).hexdigest()
+            card_hash = hashlib.sha1(card["name"].encode("utf-8")).hexdigest()
             hash_sum += int(card_hash, 16)
 
         hash = hex(hash_sum)
@@ -138,7 +138,7 @@ class Battle(GraphObject):
 
         hashSum = 0
         for item in hashValues:
-            itemHash = hashlib.sha1(item.encode('utf-8')).hexdigest()
+            itemHash = hashlib.sha1(item.encode("utf-8")).hexdigest()
             hashSum += int(itemHash, 16)
 
         hash = hex(hashSum)
@@ -199,7 +199,7 @@ class Hash_Graph_Object(GraphObject):
 
         hashSum = 0
         for item in hash_array:
-            itemHash = hashlib.sha1(str(item).encode('utf-8')).hexdigest()
+            itemHash = hashlib.sha1(str(item).encode("utf-8")).hexdigest()
             hashSum += int(itemHash, 16)
 
         hash = hex(hashSum)
@@ -230,7 +230,7 @@ def get_hash(hash_array):
 
     hashSum = 0
     for item in hash_array:
-        itemHash = hashlib.sha1(str(item).encode('utf-8')).hexdigest()
+        itemHash = hashlib.sha1(str(item).encode("utf-8")).hexdigest()
         hashSum += int(itemHash, 16)
 
     hash = hex(hashSum)
