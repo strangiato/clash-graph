@@ -1,7 +1,7 @@
+from datetime import datetime
+
 import royalerequest
 import createnodes
-
-from datetime import datetime
 import logging
 
 logger = logging.getLogger(__name__)

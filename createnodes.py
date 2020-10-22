@@ -1,4 +1,5 @@
 from py2neo import Graph
+
 from graphmodels import (
     Clan,
     Player,
