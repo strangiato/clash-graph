@@ -1,16 +1,16 @@
 import os
 import requests
-import json
+import urllib.parse
+
 import logging
+
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
-formatter = logging.Formatter(
-    '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
+formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 
-file_handler = logging.FileHandler('logs/royalerequest.log')
+file_handler = logging.FileHandler("logs/royalerequest.log")
 file_handler.setFormatter(formatter)
 
 stream_handler = logging.StreamHandler()
@@ -22,61 +22,72 @@ logger.addHandler(stream_handler)
 
 
 def get_base_url():
-    return "https://api.royaleapi.com"
+    return "https://api.clashroyale.com/v1"
 
 
 def get_headers():
 
-    API_KEY = os.getenv('CLASH_API')
+    API_KEY = os.getenv("CLASH_API")
 
-    HEADERS = {
-        'auth': API_KEY
-    }
-
+    HEADERS = {"Authorization": "Bearer {API_KEY}".format(API_KEY=API_KEY)}
     return HEADERS
 
 
 def get_clan(base_url, headers, tag):
     logger.info("Get Clan: {}".format(tag))
-    request_url = '{base_url}/clan/{tag}'.format(base_url=base_url, tag=tag)
+    parsed_tag = __url_parse(tag)
+
+    request_url = "{base_url}/clans/{tag}".format(base_url=base_url, tag=parsed_tag)
 
     return __get_data(request_url, headers)
 
 
 def get_cards(base_url, headers):
     logger.info("Get Cards")
-    request_url = '{base_url}/constant/cards'.format(base_url=base_url)
+
+    request_url = "{base_url}/cards".format(base_url=base_url)
 
     return __get_data(request_url, headers)
 
 
 def get_player(base_url, headers, tag):
     logger.info("Get Player: {}".format(tag))
-    request_url = '{base_url}/player/{tag}'.format(base_url=base_url, tag=tag)
+    parsed_tag = __url_parse(tag)
+
+    request_url = "{base_url}/players/{tag}".format(base_url=base_url, tag=parsed_tag)
 
     return __get_data(request_url, headers)
 
 
 def get_battles(base_url, headers, tag):
     logger.info("Get Player Battles: {}".format(tag))
-    request_url = '{base_url}/player/{tag}/battles'.format(
-        base_url=base_url, tag=tag)
+    parsed_tag = __url_parse(tag)
+
+    request_url = "{base_url}/players/{tag}/battlelog".format(
+        base_url=base_url, tag=parsed_tag
+    )
 
     return __get_data(request_url, headers)
 
 
 def get_war(base_url, headers, tag):
     logger.info("Get Clan Current War: {}".format(tag))
-    request_url = '{base_url}/clan/{tag}/war'.format(
-        base_url=base_url, tag=tag)
+    parsed_tag = __url_parse(tag)
+
+    request_url = "{base_url}/clan/{tag}/currentwar".format(
+        base_url=base_url, tag=parsed_tag
+    )
 
     return __get_data(request_url, headers)
 
 
 def get_warlog(base_url, headers, tag):
     logger.info("Get Clan Warlog: {}".format(tag))
-    request_url = '{base_url}/clan/{tag}/warlog'.format(
-        base_url=base_url, tag=tag)
+    parsed_tag = __url_parse(tag)
+
+    request_url = "{base_url}/clans/{tag}/warlog".format(
+        base_url=base_url, tag=parsed_tag
+    )
 
     return __get_data(request_url, headers)
 
@@ -84,7 +95,18 @@ def get_warlog(base_url, headers, tag):
 def __get_data(url, headers):
     response = requests.request("GET", url, headers=headers)
 
+    logging_message = "{} - {}".format(url, response.status_code)
+
+    if response.status_code < 400:
+        logger.info(logging_message)
+    else:
+        logger.error(logging_message)
+
     return response.json()
+
+
+def __url_parse(data):
+    return urllib.parse.quote(data)
 
 
 if __name__ == "__main__":
@@ -92,10 +114,10 @@ if __name__ == "__main__":
     base_url = get_base_url()
     headers = get_headers()
     print(headers)
-    clan = get_clan(base_url, headers, "VV80RJY")
+    clan = get_clan(base_url, headers, "#VV80RJY")
     print(clan["tag"])
 
-    player = get_player(base_url, headers, "80VUU9PLP")
+    player = get_player(base_url, headers, "#80VUU9PLP")
     print(player["tag"])
 
     cards = get_cards(base_url, headers)
