@@ -1,6 +1,5 @@
 from py2neo.ogm import GraphObject, Property, RelatedTo, RelatedFrom
 import hashlib
-from statistics import mean
 
 
 class Card(GraphObject):
